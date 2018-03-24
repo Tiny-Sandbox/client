@@ -26,10 +26,12 @@ let playerCount = 3;
 let inputs = ["KeyW", "KeyA", "KeyS", "KeyD", "Spacebar"];
 
 class Player {
-  constructor(x, y) {
+  constructor(id, x, y) {
+		this.id = id;
+    
     this.x = x;
     this.y = y;
-
+    
     this.color = 'hsl(' + 360 * Math.random() + ', 50%, 50%)';
   }
 }
@@ -61,6 +63,10 @@ class Space {
       return false; // Can't change back if there wasn't a tile to revert to.
     }
   }
+  
+  toString() {
+  	return this.constructor.name;
+  }
 }
 
 class Wall extends Space {
@@ -79,6 +85,10 @@ class Occupied extends Wall {
     super(x, y);
     this.occupiedBy = player;
     this.color = player.color;
+  }
+  
+  toString() {
+  	return `Player ${this.occupiedBy.id + 1}'s tile`;
   }
 }
 
@@ -125,7 +135,7 @@ for (let p = 0; p < playerCount; p++) {
   const playerX = Math.round(Math.random() * arenaWidth);
   const playerY = Math.round(Math.random() * arenaHeight);
 
-  players.push(new Player(playerX, playerY));
+  players.push(new Player(p, playerX, playerY));
 
   getTile(playerX, playerY).changeTo(new Occupied(players[p]));
 }
@@ -266,7 +276,7 @@ function render() {
   	hctx.textBaseline = "middle";
   
   	hctx.fillText(`(${crds.x}, ${crds.y})`, hud.width - 12, hud.height - 12);
-  	hctx.fillText(mapHoverLocation.tile.constructor.name, hud.width - 12, hud.height - 24);
+  	hctx.fillText(mapHoverLocation.tile.toString(), hud.width - 12, hud.height - 24);
   }
 
   // AGAIN!
