@@ -6,7 +6,7 @@ ctx.fillText("Hello there! Something might've gone wrong.", canvas.width / 2, ca
 const hud = document.getElementById("hud");
 const hctx = hud.getContext("2d");
 
-let location = {};
+let mapHoverLocation = {};
 
 const arenaWidth = 20;
 const arenaHeight = 20;
@@ -143,7 +143,7 @@ function getMousePos(evt) {
 
 canvas.addEventListener("mousemove", (event) => {
 	const pos = getMousePos(event);
-  location = {
+  mapHoverLocation = {
   	coordinates: pos,
     tile: getTile(pos.x, pos.y),
   };
@@ -259,14 +259,14 @@ function render() {
     hctx.fillText(value, hud.width / 8 * 2 + 12, index * 12);
   });
   
-  if (location.coordinates) {
-  	const crds = location.coordinates;
+  if (mapHoverLocation.coordinates) {
+  	const crds = mapHoverLocation.coordinates;
     
   	hctx.textAlign = "right";
   	hctx.textBaseline = "middle";
   
   	hctx.fillText(`(${crds.x}, ${crds.y})`, hud.width - 12, hud.height - 12);
-  	hctx.fillText(location.tile.constructor.name, hud.width - 12, hud.height - 24);
+  	hctx.fillText(mapHoverLocation.tile.constructor.name, hud.width - 12, hud.height - 24);
   }
 
   // AGAIN!
