@@ -21,8 +21,18 @@ hud.height = window.innerHeight * 0.15;
 canvas.style.width = window.innerWidth * 0.80 + "px";
 canvas.style.height = window.innerHeight * 0.80 + "px";
 
+// derived from https://stackoverflow.com/a/901144
+function param(name, url = window.location.href) {
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
 let currentTurn = 0;
-let playerCount = 3;
+let playerCount = param("players") || 3;
 let inputs = ["KeyW", "KeyA", "KeyS", "KeyD", "Spacebar"];
 
 class Player {
