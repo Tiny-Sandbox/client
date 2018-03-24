@@ -33,7 +33,7 @@ function param(name, url = window.location.href) {
 
 let currentTurn = 0;
 const playerCount = param("players") || 3;
-const sandbox = param("sandbox") || false;
+const sandbox = param("sandbox") == true;
 
 let inputs = ["KeyW", "KeyA", "KeyS", "KeyD", "Spacebar"];
 
