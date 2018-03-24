@@ -32,7 +32,9 @@ function param(name, url = window.location.href) {
 }
 
 let currentTurn = 0;
-let playerCount = param("players") || 3;
+const playerCount = param("players") || 3;
+const sandbox = param("sandbox") || false;
+
 let inputs = ["KeyW", "KeyA", "KeyS", "KeyD", "Spacebar"];
 
 class Player {
@@ -205,7 +207,7 @@ window.addEventListener("keypress", (event) => {
   switch (event.code) {
     case inputs[0]:
       const tileUp = getTile(curPl.x, curPl.y - 1);
-      if (!tileUp.collides(2)) {
+      if (!tileUp.collides(2) || (event.sandbox && event.shiftKey)) {
         curTile.changeBack();
         tileUp.changeTo(curTile);
         players[currentTurn].y--;
@@ -215,7 +217,7 @@ window.addEventListener("keypress", (event) => {
       break;
     case inputs[1]:
       const tileLeft = getTile(curPl.x - 1, curPl.y);
-      if (!tileLeft.collides(3)) {
+      if (!tileLeft.collides(3) || (event.sandbox && event.shiftKey)) {
         curTile.changeBack();
         tileLeft.changeTo(curTile);
         players[currentTurn].x--;
@@ -225,7 +227,7 @@ window.addEventListener("keypress", (event) => {
       break;
     case inputs[2]:
       const tileDown = getTile(curPl.x, curPl.y + 1);
-      if (!tileDown.collides(0)) {
+      if (!tileDown.collides(0) || (event.sandbox && event.shiftKey)) {
         curTile.changeBack();
         tileDown.changeTo(curTile);
         players[currentTurn].y++;
@@ -235,7 +237,7 @@ window.addEventListener("keypress", (event) => {
       break;
     case inputs[3]:
       const tileRight = getTile(curPl.x + 1, curPl.y);
-      if (!tileRight.collides(1)) {
+      if (!tileRight.collides(1) || (event.sandbox && event.shiftKey)) {
         curTile.changeBack();
         tileRight.changeTo(curTile);
         players[currentTurn].x++;
@@ -294,7 +296,7 @@ function render() {
   hctx.textBaseline = "middle";
 
   // Render some HUD stats.
-  const playerText = players.length > 1 ? `PLAYER ${currentTurn + 1}` : "SANDBOX";
+  const playerText = sandbox ? "SANDBOX" : `PLAYER ${currentTurn + 1}`;
   hctx.fillText(playerText, hud.width / 8, hud.height / 2);
 
   hctx.font = "12px Ubuntu";
