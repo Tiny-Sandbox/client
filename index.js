@@ -6,6 +6,8 @@ ctx.fillText("Hello there! Something might've gone wrong.", canvas.width / 2, ca
 const hud = document.getElementById("hud");
 const hctx = hud.getContext("2d");
 
+let location = {};
+
 const arenaWidth = 20;
 const arenaHeight = 20;
 
@@ -139,10 +141,12 @@ function getMousePos(evt) {
   }
 }
 
-canvas.addEventListener("click", (event) => {
-  const pos = getMousePos(event);
-  console.log(pos)
-  console.log("Tile at click location:", getTile(pos.x, pos.y));
+canvas.addEventListener("mousemove", (event) => {
+	const pos = getMousePos(event);
+  location = {
+  	coordinates: pos,
+    tile: getTile(pos.x, pos.y),
+  };
 });
 
 window.addEventListener("keypress", (event) => {
@@ -254,6 +258,16 @@ function render() {
   text.forEach((value, index) => {
     hctx.fillText(value, hud.width / 8 * 2 + 12, index * 12);
   });
+  
+  if (location.coordinates) {
+  	const crds = location.coordinates;
+    
+  	hctx.textAlign = "right";
+  	hctx.textBaseline = "middle";
+  
+  	hctx.fillText(`(${crds.x}, ${crds.y})`, hud.width - 12, hud.height - 12);
+  	hctx.fillText(location.tile.constructor.name, hud.width - 12, hud.height - 24);
+  }
 
   // AGAIN!
   window.requestAnimationFrame(render);
