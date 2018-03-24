@@ -1,0 +1,11 @@
+body {
+  margin: 4px;
+  overflow: hidden;
+  background-color: black;
+}
+
+#c {
+  /* The background should never be seen! */
+  background-color: white;
+  image-rendering: pixelated;
+}
