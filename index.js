@@ -32,7 +32,7 @@ class Player {
     this.x = x;
     this.y = y;
     
-    this.color = 'hsl(' + 360 * Math.random() + ', 50%, 50%)';
+    this.color = `hsl(${this.id / playerCount * 360}, 50%, 50%)`;
   }
 }
 
