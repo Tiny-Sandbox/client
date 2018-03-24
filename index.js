@@ -249,7 +249,7 @@ function render() {
   hctx.fillRect(0, 0, hud.width / 4, hud.height);
 
   // Cool font and color.
-  hctx.font = "20px Ubuntu";
+  hctx.font = `${hud.width / 20}px Ubuntu`;
   hctx.fillStyle = "white";
 
   // Center text.
