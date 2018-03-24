@@ -257,7 +257,8 @@ function render() {
   hctx.textBaseline = "middle";
 
   // Render some HUD stats.
-  hctx.fillText(`PLAYER ${currentTurn + 1}`, hud.width / 8, hud.height / 2);
+  const playerText = players.length > 1 ? `PLAYER ${currentTurn + 1}` : "SANDBOX";
+  hctx.fillText(playerText, hud.width / 8, hud.height / 2);
 
   hctx.font = "12px Ubuntu";
   hctx.textAlign = "left";
