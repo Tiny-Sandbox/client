@@ -115,11 +115,11 @@ class LockedWall extends Wall {
         this.takeAwayKeys = takeAwayKeys;
     }
 
-    collides(info) {
-        if (!players[currentTurn].keys >= this.keysNeeded) {
+    collides() {
+        if (players[currentTurn].keys < this.keysNeeded) {
             return true;
         } else {
-            if (takeAwayKeys) {
+            if (this.takeAwayKeys) {
                players[currentTurn].keys -= this.keysNeeded;
             }
             return false;
