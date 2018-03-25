@@ -173,7 +173,7 @@ function makeArray(w, h) {
             arr[i][j] = (function() {
                 switch (random) {
                     case 0:
-                        return new LockedWall(j, i, Math.round(Math.random() * 2) + 1);
+                        return new LockedWall(j, i, Math.round(Math.random() * 2) + 1, Math.round(Math.random()));
                     case 1:
                     case 2:
                         return new Wall(j, i);
