@@ -8,8 +8,8 @@ const hctx = hud.getContext("2d");
 
 let mapHoverLocation = {};
 
-const arenaWidth = 20;
-const arenaHeight = 20;
+const arenaWidth = Math.ceil(Math.random() * 20);
+const arenaHeight = arenaWidth;
 
 const pixelsPerTile = 4;
 canvas.width = arenaWidth * pixelsPerTile;
