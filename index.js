@@ -137,7 +137,11 @@ class DirectionalWall extends Wall {
 }
 
 class ItemBox extends Space {
+    constructor(x, y) {
+        super(x, y);
 
+        this.color = "#dd66ff";
+    }
 }
 
 function makeArray(w, h) {
@@ -153,6 +157,8 @@ function makeArray(w, h) {
                     case 1:
                     case 2:
                         return new Wall(j, i);
+                    case 4:
+                        return new ItemBox(j, i);
                     case 3:
                         return new DirectionalWall(Math.round(Math.random() * 4), j, i);
                     default:
