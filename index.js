@@ -207,7 +207,7 @@ window.addEventListener("keypress", (event) => {
   switch (event.code) {
     case inputs[0]:
       const tileUp = getTile(curPl.x, curPl.y - 1);
-      if (!tileUp.collides(2) || (event.sandbox && event.shiftKey)) {
+      if (!tileUp.collides(2) || (sandbox && event.shiftKey)) {
         curTile.changeBack();
         tileUp.changeTo(curTile);
         players[currentTurn].y--;
@@ -217,7 +217,7 @@ window.addEventListener("keypress", (event) => {
       break;
     case inputs[1]:
       const tileLeft = getTile(curPl.x - 1, curPl.y);
-      if (!tileLeft.collides(3) || (event.sandbox && event.shiftKey)) {
+      if (!tileLeft.collides(3) || (sandbox && event.shiftKey)) {
         curTile.changeBack();
         tileLeft.changeTo(curTile);
         players[currentTurn].x--;
@@ -227,7 +227,7 @@ window.addEventListener("keypress", (event) => {
       break;
     case inputs[2]:
       const tileDown = getTile(curPl.x, curPl.y + 1);
-      if (!tileDown.collides(0) || (event.sandbox && event.shiftKey)) {
+      if (!tileDown.collides(0) || (sandbox && event.shiftKey)) {
         curTile.changeBack();
         tileDown.changeTo(curTile);
         players[currentTurn].y++;
@@ -237,7 +237,7 @@ window.addEventListener("keypress", (event) => {
       break;
     case inputs[3]:
       const tileRight = getTile(curPl.x + 1, curPl.y);
-      if (!tileRight.collides(1) || (event.sandbox && event.shiftKey)) {
+      if (!tileRight.collides(1) || (sandbox && event.shiftKey)) {
         curTile.changeBack();
         tileRight.changeTo(curTile);
         players[currentTurn].x++;
