@@ -162,6 +162,11 @@ class ItemBox extends Space {
 
         this.color = "#dd66ff";
     }
+
+    collides() {
+        players[currentTurn].keys += 1;
+        return true;
+    }
 }
 
 function makeArray(w, h) {
