@@ -117,12 +117,12 @@ class LockedWall extends Wall {
 
     collides(info) {
         if (!players[currentTurn].keys >= this.keysNeeded) {
-            return false;
+            return true;
         } else {
             if (takeAwayKeys) {
                players[currentTurn].keys -= this.keysNeeded;
             }
-            return true;
+            return false;
         }
     }
 
@@ -169,7 +169,7 @@ class ItemBox extends Space {
          players[currentTurn].keys += 1;
          this.active = false;
         }
-        return true;
+        return false;
     }
 
     toString() {
