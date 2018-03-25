@@ -45,6 +45,8 @@ class Player {
         this.y = y;
 
         this.color = `hsl(${this.id / playerCount * 360}, 50%, 50%)`;
+
+        this.keys = 0;
     }
 }
 
@@ -105,9 +107,20 @@ class Occupied extends Wall {
 }
 
 class LockedWall extends Wall {
-    constructor(x, y) {
+    constructor(x, y, keysNeeded = 1, takeAwayKeys = false) {
         super(x, y);
         this.color = "#222222";
+    }
+
+    collides(info) {
+        if (!players[currentTurn].keys >= keysNeeded) {
+            return false;
+        } else {
+            if (takeAwayKeys) {
+               players[currentTurn].keys -= keysNeeded;
+            }
+            return true;
+        }
     }
 }
 
