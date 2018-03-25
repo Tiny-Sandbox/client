@@ -127,7 +127,7 @@ class LockedWall extends Wall {
     }
 
     toString() {
-        return `Locked wall requiring ${this.keysNeeded} key${this.keysNeeded === 1 ? "" : "s"}`;
+        return `${this.takeAwayKeys ? "Unstable l" : "L"}ocked wall requiring ${this.keysNeeded} key${this.keysNeeded === 1 ? "" : "s"}`;
     }
 }
 
