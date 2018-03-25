@@ -362,6 +362,11 @@ function render() {
         }
     }
 
+    const keys = players[currentTurn].keys;
+    hctx.textAlign = "left";
+    hctx.textBaseline = "middle";
+    hctx.fillText(`Has ${keys} key${keys === 1 ? "" : "s"}`, hud.width / 8 * 2 + 12, hud.height - 12);
+
     // AGAIN!
     window.requestAnimationFrame(render);
 }
