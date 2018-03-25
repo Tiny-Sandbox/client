@@ -161,10 +161,14 @@ class ItemBox extends Space {
         super(x, y);
 
         this.color = "#dd66ff";
+        this.active = true;
     }
 
     collides() {
-        players[currentTurn].keys += 1;
+        if (this.active) {
+         players[currentTurn].keys += 1;
+         this.active = false;
+        }
         return true;
     }
 }
