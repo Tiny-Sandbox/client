@@ -110,17 +110,24 @@ class LockedWall extends Wall {
     constructor(x, y, keysNeeded = 1, takeAwayKeys = false) {
         super(x, y);
         this.color = "#222222";
+
+        this.keysNeeded = keysNeeded;
+        this.takeAwayKeys = takeAwayKeys;
     }
 
     collides(info) {
-        if (!players[currentTurn].keys >= keysNeeded) {
+        if (!players[currentTurn].keys >= this.keysNeeded) {
             return false;
         } else {
             if (takeAwayKeys) {
-               players[currentTurn].keys -= keysNeeded;
+               players[currentTurn].keys -= this.keysNeeded;
             }
             return true;
         }
+    }
+
+    toString() {
+        return `Locked wall requiring ${this.keysNeeded} key${this.keysNeeded === 1 ? "" : "s"}`;
     }
 }
 
@@ -166,7 +173,7 @@ function makeArray(w, h) {
             arr[i][j] = (function() {
                 switch (random) {
                     case 0:
-                        return new LockedWall(j, i);
+                        return new LockedWall(j, i, Math.round(Math.random() * 2) + 1);
                     case 1:
                     case 2:
                         return new Wall(j, i);
