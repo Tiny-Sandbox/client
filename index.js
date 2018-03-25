@@ -334,8 +334,8 @@ function render() {
         hctx.textAlign = "right";
         hctx.textBaseline = "middle";
 
-        hctx.fillText(`(${crds.x}, ${crds.y})`, hud.width - 12, hud.height - 12);
-        hctx.fillText(mapHoverLocation.tile.toString(), hud.width - 12, hud.height - 24);
+        hctx.fillText(mapHoverLocation.tile.toString(), hud.width - 12, hud.height - 12);
+        hctx.fillText(`(${crds.x}, ${crds.y})`, hud.width - 12, hud.height - 24);
     }
 
     // AGAIN!
