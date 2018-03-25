@@ -254,7 +254,7 @@ window.addEventListener("keypress", (event) => {
         default:
             finishedTurn = false;
     }
-    if (finishedTurn) {
+    if (finishedTurn && !(sandbox && event.altKey)) {
         currentTurn++;
         if (currentTurn === players.length) {
             currentTurn = 0;
