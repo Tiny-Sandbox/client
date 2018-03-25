@@ -171,6 +171,10 @@ class ItemBox extends Space {
         }
         return true;
     }
+
+    toString() {
+        return this.active ? "Item box" : "Empty item box";
+    }
 }
 
 function makeArray(w, h) {
