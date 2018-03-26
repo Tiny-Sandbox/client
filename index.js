@@ -35,7 +35,20 @@ let currentTurn = 0;
 const playerCount = param("players") || 3;
 const sandbox = param("sandbox") == true;
 
-let inputs = ["KeyW", "KeyA", "KeyS", "KeyD", "Spacebar"];
+let inputs = [
+    ["KeyW", "ArrowUp"],
+    ["KeyA", "ArrowLeft"],
+    ["KeyS", "ArrowDown"],
+    ["KeyD", "ArrowRight"],
+    ["Spacebar"],
+];
+function findKeyMeaning(code) {
+  for (let item of inputs) {
+  	if (item.includes(code)) {
+    	return item.indexOf(code);
+    }
+  }
+}
 
 class Player {
     constructor(id, x, y) {
@@ -243,8 +256,8 @@ window.addEventListener("keypress", (event) => {
 
     let finishedTurn = true; // Only set to false if none of the keys with a case below were pressed or failed move.
 
-    switch (event.code) {
-        case inputs[0]:
+    switch (findKeyMeaning(event.code)) {
+        case 0:
             const tileUp = getTile(curPl.x, curPl.y - 1);
             if (!tileUp.collides(2) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
@@ -254,7 +267,7 @@ window.addEventListener("keypress", (event) => {
                 finishedTurn = false;
             }
             break;
-        case inputs[1]:
+        case 1:
             const tileLeft = getTile(curPl.x - 1, curPl.y);
             if (!tileLeft.collides(3) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
@@ -264,7 +277,7 @@ window.addEventListener("keypress", (event) => {
                 finishedTurn = false;
             }
             break;
-        case inputs[2]:
+        case 2:
             const tileDown = getTile(curPl.x, curPl.y + 1);
             if (!tileDown.collides(0) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
@@ -274,7 +287,7 @@ window.addEventListener("keypress", (event) => {
                 finishedTurn = false;
             }
             break;
-        case inputs[3]:
+        case 3:
             const tileRight = getTile(curPl.x + 1, curPl.y);
             if (!tileRight.collides(1) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
