@@ -430,8 +430,8 @@ function render() {
 
     hctx.textAlign = "left";
     const text = [
-        "Use WASD to navigate.",
-        "Each player takes turns moving.",
+        "Use WASD, arrows, and/or IJKL to navigate.",
+        cooperative ? "Work together to do things." : "Each player takes turns moving.",
         "You can only move to tiles that are white (empty spaces).",
         "There is no objective yet.",
         "Have fun!"
