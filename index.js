@@ -119,6 +119,22 @@ class Occupied extends Wall {
     }
 }
 
+class HomeSpace extends Wall {
+	constructor(owner, x, y) {
+  	super(x, y);
+    this.owner = owner;
+    this.color = this.owner.color;
+  }
+  
+  collides() {
+  	return currentTurn !== this.owner.id;
+  }
+  
+  toString() {
+  		return `Player ${this.owner.id + 1}'s home tile`;
+  }
+}
+
 class LockedWall extends Wall {
     constructor(x, y, keysNeeded = 1, takeAwayKeys = false) {
         super(x, y);
@@ -228,6 +244,7 @@ for (let p = 0; p < playerCount; p++) {
 
     players.push(new Player(p, playerX, playerY));
 
+		getTile(playerX, playerY).changeTo(new HomeSpace(players[p]));
     getTile(playerX, playerY).changeTo(new Occupied(players[p]));
 }
 
