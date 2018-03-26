@@ -11,7 +11,7 @@ let mapHoverLocation = {};
 const arenaWidth = Math.ceil(Math.random() * 20);
 const arenaHeight = arenaWidth;
 
-const pixelsPerTile = 1;
+const pixelsPerTile = 16;
 canvas.width = arenaWidth * pixelsPerTile;
 canvas.height = arenaHeight * pixelsPerTile;
 
