@@ -189,6 +189,23 @@ class DirectionalWall extends Wall {
     }
 }
 
+class ToggleableWall extends Wall {
+	// this type of wall can be toggled for collision, but starts out closed
+  constructor(x, y) {
+  	super(x, y);
+    
+    this.closed = true;
+  }
+  
+  collides() {
+  	return this.closed;
+  }
+  
+  toString() {
+  	return `${this.closed ? "Closed t" : "T"}oggleable wall`;
+  }
+}
+
 class ItemBox extends Space {
     constructor(x, y) {
         super(x, y);
