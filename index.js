@@ -360,7 +360,7 @@ function render() {
     hctx.fillRect(0, 0, hud.width, hud.height);
 
     // Get some HUD backgrounds.
-    hctx.fillStyle = players[currentTurn].color;
+    hctx.fillStyle = cooperative ? "#77ffff" : players[currentTurn].color;
     hctx.fillRect(0, 0, hud.width / 4, hud.height);
 
     // Cool font and color.
@@ -372,13 +372,18 @@ function render() {
     hctx.textBaseline = "middle";
 
     // Render some HUD stats.
-    const playerText = sandbox ? "SANDBOX" : `PLAYER ${currentTurn + 1}`;
+    const playerText = cooperative ? "CO-OP" : `PLAYER ${currentTurn + 1}`;
     hctx.fillText(playerText, hud.width / 8, hud.height / 2);
 
     hctx.font = "12px Ubuntu";
-    hctx.textAlign = "left";
     hctx.textBaseline = "top";
+    
+    if (!sandbox) {
+    	hctx.textAlign = "right";
+      hctx.fillText("*", hud.width / 4 - 1, 0);
+    }
 
+    hctx.textAlign = "left";
     const text = "Use WASD to navigate.\nEach player takes turns moving.\nYou can only move to tiles that are white (empty spaces).\nThere is no objective yet.\nHave fun!".split("\n");
 
     text.forEach((value, index) => {
