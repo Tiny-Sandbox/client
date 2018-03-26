@@ -282,6 +282,11 @@ function randItem(array) {
     return array[Math.floor(Math.random() * array.length)];
 }
 
+function generateBase(player) {
+    getTile(player.x, player.y).changeTo(new HomeSpace(player));
+    getTile(player.x, player.y).changeTo(new Occupied(player));
+}
+
 const players = [];
 for (let p = 0; p < playerCount; p++) {
     const randSpace = randItem(getSpaces());
@@ -289,9 +294,7 @@ for (let p = 0; p < playerCount; p++) {
     const playerY = randSpace.y;
 
     players.push(new Player(p, playerX, playerY));
-
-    getTile(playerX, playerY).changeTo(new HomeSpace(players[p]));
-    getTile(playerX, playerY).changeTo(new Occupied(players[p]));
+    generateBase(players[p]);
 }
 
 function getMousePos(evt) {
