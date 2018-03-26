@@ -36,10 +36,10 @@ const playerCount = param("players") || 3;
 const sandbox = param("sandbox") == true;
 
 let inputs = [
-    ["KeyW", "ArrowUp"],
-    ["KeyA", "ArrowLeft"],
-    ["KeyS", "ArrowDown"],
-    ["KeyD", "ArrowRight"],
+    ["KeyW", "ArrowUp", "KeyI"],
+    ["KeyA", "ArrowLeft", "KeyJ"],
+    ["KeyS", "ArrowDown", "KeyK"],
+    ["KeyD", "ArrowRight", "KeyL"],
     ["Spacebar"],
 ];
 function findKeyMeaning(code) {
