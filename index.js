@@ -37,10 +37,10 @@ const sandbox = param("sandbox") == true;
 const cooperative = param("coop") == true;
 
 let inputs = [
-    ["KeyW", "ArrowUp", "KeyI"],
-    ["KeyA", "ArrowLeft", "KeyJ"],
-    ["KeyS", "ArrowDown", "KeyK"],
-    ["KeyD", "ArrowRight", "KeyL"],
+    ["KeyW", "KeyI", "ArrowUp"],
+    ["KeyA", "KeyJ", "ArrowLeft"],
+    ["KeyS", "KeyK", "ArrowDown"],
+    ["KeyD", "KeyL", "ArrowRight"],
     ["Spacebar"],
 ];
 
