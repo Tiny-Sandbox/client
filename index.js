@@ -43,15 +43,16 @@ let inputs = [
     ["KeyD", "ArrowRight", "KeyL"],
     ["Spacebar"],
 ];
+
 function findKeyMeaning(code) {
-  for (let index = 0; index < inputs.length; index++) {
-  	if (inputs[index].includes(code)) {
-    	return {
-      	meaning: index,
-        owner: inputs[index].indexOf(code),
-      };
+    for (let index = 0; index < inputs.length; index++) {
+        if (inputs[index].includes(code)) {
+            return {
+                meaning: index,
+                owner: inputs[index].indexOf(code),
+            };
+        }
     }
-  }
 }
 
 class Player {
@@ -124,19 +125,19 @@ class Occupied extends Wall {
 }
 
 class HomeSpace extends Wall {
-	constructor(owner, x, y) {
-  	super(x, y);
-    this.owner = owner;
-    this.color = this.owner.color;
-  }
-  
-  collides(direction, player) {
-  	return player.id !== this.owner.id;
-  }
-  
-  toString() {
-  		return `Player ${this.owner.id + 1}'s home tile`;
-  }
+    constructor(owner, x, y) {
+        super(x, y);
+        this.owner = owner;
+        this.color = this.owner.color;
+    }
+
+    collides(direction, player) {
+        return player.id !== this.owner.id;
+    }
+
+    toString() {
+        return `Player ${this.owner.id + 1}'s home tile`;
+    }
 }
 
 class LockedWall extends Wall {
@@ -153,7 +154,7 @@ class LockedWall extends Wall {
             return true;
         } else {
             if (this.takeAwayKeys) {
-               players[player.id].keys -= this.keysNeeded;
+                players[player.id].keys -= this.keysNeeded;
             }
             return false;
         }
@@ -190,20 +191,20 @@ class DirectionalWall extends Wall {
 }
 
 class ToggleableWall extends Wall {
-	// this type of wall can be toggled for collision, but starts out closed
-  constructor(x, y) {
-  	super(x, y);
-    
-    this.closed = true;
-  }
-  
-  collides() {
-  	return this.closed;
-  }
-  
-  toString() {
-  	return `${this.closed ? "Closed t" : "T"}oggleable wall`;
-  }
+    // this type of wall can be toggled for collision, but starts out closed
+    constructor(x, y) {
+        super(x, y);
+
+        this.closed = true;
+    }
+
+    collides() {
+        return this.closed;
+    }
+
+    toString() {
+        return `${this.closed ? "Closed t" : "T"}oggleable wall`;
+    }
 }
 
 class ItemBox extends Space {
@@ -216,8 +217,8 @@ class ItemBox extends Space {
 
     collides(direction, player) {
         if (this.active) {
-         players[player.id].keys += 1;
-         this.active = false;
+            players[player.id].keys += 1;
+            this.active = false;
         }
         return false;
     }
@@ -233,7 +234,7 @@ function makeArray(w, h) {
         arr[i] = [];
         for (j = 0; j < w; j++) {
             const random = Math.round(Math.random() * 20);
-            arr[i][j] = (function() {
+            arr[i][j] = (function () {
                 switch (random) {
                     case 0:
                         return new LockedWall(j, i, Math.round(Math.random() * 2) + 1, Math.round(Math.random()));
@@ -265,7 +266,7 @@ for (let p = 0; p < playerCount; p++) {
 
     players.push(new Player(p, playerX, playerY));
 
-		getTile(playerX, playerY).changeTo(new HomeSpace(players[p]));
+    getTile(playerX, playerY).changeTo(new HomeSpace(players[p]));
     getTile(playerX, playerY).changeTo(new Occupied(players[p]));
 }
 
@@ -289,10 +290,10 @@ canvas.addEventListener("mousemove", (event) => {
 });
 
 window.addEventListener("keypress", (event) => {
-		const keybind = findKeyMeaning(event.code);
+    const keybind = findKeyMeaning(event.code);
     const curPl = cooperative ? players[keybind.owner] : players[currentTurn];
     const plId = curPl.id;
-    
+
     let curTile = getTile(curPl.x, curPl.y);
 
     let finishedTurn = true; // Only set to false if none of the keys with a case below were pressed or failed move.
@@ -394,10 +395,10 @@ function render() {
 
     hctx.font = "12px Ubuntu";
     hctx.textBaseline = "top";
-    
+
     if (sandbox) {
-    	hctx.textAlign = "right";
-      hctx.fillText("*", hud.width / 4 - 1, 0);
+        hctx.textAlign = "right";
+        hctx.fillText("*", hud.width / 4 - 1, 0);
     }
 
     hctx.textAlign = "left";
