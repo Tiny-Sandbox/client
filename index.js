@@ -34,7 +34,7 @@ function param(name, url = window.location.href) {
 let currentTurn = 0;
 const playerCount = param("players") || 3;
 const sandbox = param("sandbox") == true;
-const cooperative = param("coop") != true; // Co-op default for testing
+const cooperative = param("coop") == true;
 
 let inputs = [
     ["KeyW", "ArrowUp", "KeyI"],
@@ -378,7 +378,7 @@ function render() {
     hctx.font = "12px Ubuntu";
     hctx.textBaseline = "top";
     
-    if (!sandbox) {
+    if (sandbox) {
     	hctx.textAlign = "right";
       hctx.fillText("*", hud.width / 4 - 1, 0);
     }
