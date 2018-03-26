@@ -260,10 +260,33 @@ function getTile(x, y) {
     return arenaMap[y][x];
 }
 
+function getMatchingTiles(callback) {
+    const matching = [];
+
+    for (let item of arenaMap) {
+        for (let item2 of item) {
+            if (callback(item2)) {
+                matching.push(item2)
+            }
+        }
+    }
+
+    return matching;
+}
+function getSpaces() {
+    return getMatchingTiles(function (tile) {
+        return tile.constructor.name === "Space";
+    });
+}
+function randItem(array) {
+    return array[Math.floor(Math.random() * array.length)];
+}
+
 const players = [];
 for (let p = 0; p < playerCount; p++) {
-    const playerX = Math.round(Math.random() * arenaWidth);
-    const playerY = Math.round(Math.random() * arenaHeight);
+    const randSpace = randItem(getSpaces());
+    const playerX = randSpace.x;
+    const playerY = randSpace.y;
 
     players.push(new Player(p, playerX, playerY));
 
