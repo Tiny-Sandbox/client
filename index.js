@@ -130,8 +130,8 @@ class HomeSpace extends Wall {
     this.color = this.owner.color;
   }
   
-  collides() {
-  	return currentTurn !== this.owner.id;
+  collides(direction, player) {
+  	return player.id !== this.owner.id;
   }
   
   toString() {
@@ -148,12 +148,12 @@ class LockedWall extends Wall {
         this.takeAwayKeys = takeAwayKeys;
     }
 
-    collides() {
-        if (players[currentTurn].keys < this.keysNeeded) {
+    collides(direction, player) {
+        if (player.keys < this.keysNeeded) {
             return true;
         } else {
             if (this.takeAwayKeys) {
-               players[currentTurn].keys -= this.keysNeeded;
+               players[player.id].keys -= this.keysNeeded;
             }
             return false;
         }
@@ -214,9 +214,9 @@ class ItemBox extends Space {
         this.active = true;
     }
 
-    collides() {
+    collides(direction, player) {
         if (this.active) {
-         players[currentTurn].keys += 1;
+         players[player.id].keys += 1;
          this.active = false;
         }
         return false;
@@ -300,7 +300,7 @@ window.addEventListener("keypress", (event) => {
     switch (keybind.meaning) {
         case 0:
             const tileUp = getTile(curPl.x, curPl.y - 1);
-            if (!tileUp.collides(2) || (sandbox && event.shiftKey)) {
+            if (!tileUp.collides(2, curPl) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
                 tileUp.changeTo(curTile);
                 players[plId].y--;
@@ -310,7 +310,7 @@ window.addEventListener("keypress", (event) => {
             break;
         case 1:
             const tileLeft = getTile(curPl.x - 1, curPl.y);
-            if (!tileLeft.collides(3) || (sandbox && event.shiftKey)) {
+            if (!tileLeft.collides(3, curPl) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
                 tileLeft.changeTo(curTile);
                 players[plId].x--;
@@ -320,7 +320,7 @@ window.addEventListener("keypress", (event) => {
             break;
         case 2:
             const tileDown = getTile(curPl.x, curPl.y + 1);
-            if (!tileDown.collides(0) || (sandbox && event.shiftKey)) {
+            if (!tileDown.collides(0, curPl) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
                 tileDown.changeTo(curTile);
                 players[plId].y++;
@@ -330,7 +330,7 @@ window.addEventListener("keypress", (event) => {
             break;
         case 3:
             const tileRight = getTile(curPl.x + 1, curPl.y);
-            if (!tileRight.collides(1) || (sandbox && event.shiftKey)) {
+            if (!tileRight.collides(1, curPl) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
                 tileRight.changeTo(curTile);
                 players[plId].x++;
