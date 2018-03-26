@@ -228,27 +228,28 @@ class ItemBox extends Space {
     }
 }
 
+function generateRandomTile(rand) {
+    switch (Math.round(Math.random() * rand)) {
+        case 5:
+            return new LockedWall(j, i, Math.round(Math.random() * 2) + 1, Math.round(Math.random()));
+        case 1:
+        case 2:
+            return new Wall(j, i);
+        case 4:
+            return new ItemBox(j, i);
+        case 3:
+            return new DirectionalWall(Math.round(Math.random() * 4), j, i);
+        default:
+            return new Space(j, i);
+    }
+}
+
 function makeArray(w, h) {
     var arr = [];
     for (i = 0; i < h; i++) {
         arr[i] = [];
         for (j = 0; j < w; j++) {
-            const random = Math.round(Math.random() * 20);
-            arr[i][j] = (function () {
-                switch (random) {
-                    case 0:
-                        return new LockedWall(j, i, Math.round(Math.random() * 2) + 1, Math.round(Math.random()));
-                    case 1:
-                    case 2:
-                        return new Wall(j, i);
-                    case 4:
-                        return new ItemBox(j, i);
-                    case 3:
-                        return new DirectionalWall(Math.round(Math.random() * 4), j, i);
-                    default:
-                        return new Space(j, i);
-                }
-            })();
+            arr[i][j] = generateRandomTile(20);
         }
     }
     return arr;
