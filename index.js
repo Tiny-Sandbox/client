@@ -11,7 +11,7 @@ let mapHoverLocation = {};
 const arenaWidth = Math.ceil(Math.random() * 20);
 const arenaHeight = arenaWidth;
 
-const pixelsPerTile = 4;
+const pixelsPerTile = 1;
 canvas.width = arenaWidth * pixelsPerTile;
 canvas.height = arenaHeight * pixelsPerTile;
 
@@ -34,6 +34,7 @@ function param(name, url = window.location.href) {
 let currentTurn = 0;
 const playerCount = param("players") || 3;
 const sandbox = param("sandbox") == true;
+const cooperative = param("coop") != true; // Co-op default for testing
 
 let inputs = [
     ["KeyW", "ArrowUp", "KeyI"],
@@ -45,7 +46,10 @@ let inputs = [
 function findKeyMeaning(code) {
   for (let index = 0; index < inputs.length; index++) {
   	if (inputs[index].includes(code)) {
-    	return index;
+    	return {
+      	meaning: index,
+        owner: inputs[index].indexOf(code),
+      };
     }
   }
 }
@@ -268,18 +272,21 @@ canvas.addEventListener("mousemove", (event) => {
 });
 
 window.addEventListener("keypress", (event) => {
-    const curPl = players[currentTurn];
+		const keybind = findKeyMeaning(event.code);
+    const curPl = cooperative ? keybind.owner : players[currentTurn];
+    const plId = curPl.id;
+    
     let curTile = getTile(curPl.x, curPl.y);
 
     let finishedTurn = true; // Only set to false if none of the keys with a case below were pressed or failed move.
 
-    switch (findKeyMeaning(event.code)) {
+    switch (keybind.meaning) {
         case 0:
             const tileUp = getTile(curPl.x, curPl.y - 1);
             if (!tileUp.collides(2) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
                 tileUp.changeTo(curTile);
-                players[currentTurn].y--;
+                players[plId].y--;
             } else {
                 finishedTurn = false;
             }
@@ -289,7 +296,7 @@ window.addEventListener("keypress", (event) => {
             if (!tileLeft.collides(3) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
                 tileLeft.changeTo(curTile);
-                players[currentTurn].x--;
+                players[plId].x--;
             } else {
                 finishedTurn = false;
             }
@@ -299,7 +306,7 @@ window.addEventListener("keypress", (event) => {
             if (!tileDown.collides(0) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
                 tileDown.changeTo(curTile);
-                players[currentTurn].y++;
+                players[plId].y++;
             } else {
                 finishedTurn = false;
             }
@@ -309,7 +316,7 @@ window.addEventListener("keypress", (event) => {
             if (!tileRight.collides(1) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
                 tileRight.changeTo(curTile);
-                players[currentTurn].x++;
+                players[plId].x++;
             } else {
                 finishedTurn = false;
             }
