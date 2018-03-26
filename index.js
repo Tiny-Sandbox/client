@@ -43,9 +43,9 @@ let inputs = [
     ["Spacebar"],
 ];
 function findKeyMeaning(code) {
-  for (let item of inputs) {
-  	if (item.includes(code)) {
-    	return item.indexOf(code);
+  for (let index = 0; index < inputs.length; index++) {
+  	if (inputs[index].includes(code)) {
+    	return index;
     }
   }
 }
