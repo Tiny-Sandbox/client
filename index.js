@@ -273,7 +273,7 @@ canvas.addEventListener("mousemove", (event) => {
 
 window.addEventListener("keypress", (event) => {
 		const keybind = findKeyMeaning(event.code);
-    const curPl = cooperative ? keybind.owner : players[currentTurn];
+    const curPl = cooperative ? players[keybind.owner] : players[currentTurn];
     const plId = curPl.id;
     
     let curTile = getTile(curPl.x, curPl.y);
