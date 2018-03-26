@@ -429,7 +429,13 @@ function render() {
     }
 
     hctx.textAlign = "left";
-    const text = "Use WASD to navigate.\nEach player takes turns moving.\nYou can only move to tiles that are white (empty spaces).\nThere is no objective yet.\nHave fun!".split("\n");
+    const text = [
+        "Use WASD to navigate.",
+        "Each player takes turns moving.",
+        "You can only move to tiles that are white (empty spaces).",
+        "There is no objective yet.",
+        "Have fun!"
+    ];
 
     text.forEach((value, index) => {
         hctx.fillText(value, hud.width / 8 * 2 + 12, index * 12);
