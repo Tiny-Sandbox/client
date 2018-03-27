@@ -60,6 +60,7 @@ class Player {
 
         this.x = x;
         this.y = y;
+	this.direction = 0;
 
         this.color = `hsl(${this.id / playerCount * 360}, 50%, 50%)`;
 
@@ -200,6 +201,10 @@ class ToggleableWall extends Wall {
   collides() {
   	return this.closed;
   }
+	
+doFacingAction(direction, player) {
+	this.closed = !this.closed;
+}
   
   toString() {
   	return `${this.closed ? "Closed t" : "T"}oggleable wall`;
@@ -244,6 +249,8 @@ function makeArray(w, h) {
                         return new ItemBox(j, i);
                     case 3:
                         return new DirectionalWall(Math.round(Math.random() * 4), j, i);
+			case 5:
+				return new ToggleableWall(j, i);
                     default:
                         return new Space(j, i);
                 }
@@ -300,6 +307,8 @@ window.addEventListener("keydown", (event) => {
     switch (keybind.meaning) {
         case 0:
             const tileUp = getTile(curPl.x, curPl.y - 1);
+		    
+		    players[plId].direction = 0;
             if (!tileUp.collides(2) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
                 tileUp.changeTo(curTile);
@@ -310,6 +319,7 @@ window.addEventListener("keydown", (event) => {
             break;
         case 1:
             const tileLeft = getTile(curPl.x - 1, curPl.y);
+		    players[plId].direction = 1;
             if (!tileLeft.collides(3) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
                 tileLeft.changeTo(curTile);
@@ -320,6 +330,7 @@ window.addEventListener("keydown", (event) => {
             break;
         case 2:
             const tileDown = getTile(curPl.x, curPl.y + 1);
+		    players[plId].direction = 2;
             if (!tileDown.collides(0) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
                 tileDown.changeTo(curTile);
@@ -330,6 +341,7 @@ window.addEventListener("keydown", (event) => {
             break;
         case 3:
             const tileRight = getTile(curPl.x + 1, curPl.y);
+		    players[plId].direction = 3;
             if (!tileRight.collides(1) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
                 tileRight.changeTo(curTile);
@@ -338,6 +350,22 @@ window.addEventListener("keydown", (event) => {
                 finishedTurn = false;
             }
             break;
+	    case 4:
+		    switch (curPl.direction) {
+			    case 1:
+				    getTile(curPl.x - 1, curPl.y).doFacingAction();
+				    break;
+			    case 2:
+				    act3 = getTile(curPl.x, curPl.y - 1).doFacingAction();
+				    break;
+			    case 3:
+				    act4 = getTile(curPl.x + 1, curPl.y).doFacingAction();
+				    break;
+			    default:
+				 act1 = getTile(curPl.x, curPl.y + 1).doFacingAction();
+				break;
+		    }
+		    break;
         default:
             finishedTurn = false;
     }
