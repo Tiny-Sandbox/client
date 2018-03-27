@@ -32,9 +32,9 @@ function param(name, url = window.location.href) {
 }
 
 let currentTurn = 0;
-const playerCount = param("players") || 3;
-const sandbox = param("sandbox") == true;
-const cooperative = param("coop") == true;
+const playerCount = param("players") || 2;
+const sandbox = param("sandbox") != true;
+const cooperative = param("coop") != true;
 
 let inputs = [
     ["KeyW", "KeyI", "ArrowUp"],
@@ -61,6 +61,7 @@ class Player {
 
         this.x = x;
         this.y = y;
+        this.direction = 0;
 
         this.color = `hsl(${this.id / playerCount * 360}, 50%, 50%)`;
 
@@ -73,13 +74,20 @@ class Space {
         this.x = x;
         this.y = y;
         this.color = "white";
+
         this.oldTile = null;
+        this.occupying = null;
+    }
+
+    getColor() {
+        return this.color;
     }
 
     changeTo(newSpace) {
         newSpace.x = this.x;
         newSpace.y = this.y;
         newSpace.oldTile = this;
+        newSpace.occupying = this.constructor.name;
         arenaMap[this.y][this.x] = newSpace;
     }
 
@@ -116,7 +124,10 @@ class Occupied extends Wall {
     constructor(player, x, y) {
         super(x, y);
         this.occupiedBy = player;
-        this.color = player.color;
+    }
+
+    getColor() {
+        return this.occupiedBy.color;
     }
 
     toString() {
@@ -135,6 +146,10 @@ class HomeSpace extends Wall {
         return player.id !== this.owner.id;
     }
 
+    getColor() {
+        return this.color = this.owner.color;
+    }
+
     toString() {
         return `Player ${this.owner.id + 1}'s home tile`;
     }
@@ -143,7 +158,7 @@ class HomeSpace extends Wall {
 class LockedWall extends Wall {
     constructor(x, y, keysNeeded = 1, takeAwayKeys = false) {
         super(x, y);
-        this.color = "#222222";
+        this.color = "slategray";
 
         this.keysNeeded = keysNeeded;
         this.takeAwayKeys = takeAwayKeys;
@@ -195,11 +210,16 @@ class ToggleableWall extends Wall {
     constructor(x, y) {
         super(x, y);
 
+        this.color = "pink";
         this.closed = true;
     }
 
     collides() {
         return this.closed;
+    }
+
+    doFacingAction(direction, player) {
+        this.closed = !this.closed;
     }
 
     toString() {
@@ -241,6 +261,31 @@ function generateRandomTile(rand) {
             return new DirectionalWall(Math.round(Math.random() * 4), j, i);
         default:
             return new Space(j, i);
+class CooperativeSwitch extends Space {
+    constructor(x, y) {
+        super(x, y);
+
+        this.color = "#7777FF";
+    }
+}
+
+class CooperativePuzzleWall extends Wall {
+    constructor(strengthNeeded, x, y) {
+        super(x, y);
+
+        this.color = "#9999FF";
+        this.strengthNeeded = strengthNeeded;
+    }
+
+    collides() {
+        return getMatchingTiles(function(item) {
+            if (item.constructor.name !== "Occupied") return false;
+            return item.oldTile.constructor.name === "CooperativeSwitch";
+        }).length < this.strengthNeeded;
+    }
+
+    toString() {
+        return `Cooperative wall`;
     }
 }
 
@@ -255,6 +300,18 @@ function makeArray(w, h) {
     return arr;
 }
 const arenaMap = makeArray(arenaWidth, arenaHeight);
+
+function getMatchingTiles(callback) {
+    const matches = [];
+    for (let item of arenaMap) {
+        for (let item2 of item) {
+            if (callback(item2)) {
+                matches.push(item2)
+            }
+        }
+    }
+    return matches;
+}
 
 function getTile(x, y) {
     return arenaMap[y][x];
@@ -316,6 +373,8 @@ canvas.addEventListener("mousemove", (event) => {
     };
 });
 
+const totalKeys = null; // fix this once I am able to get access to the get tiles that match callback
+
 window.addEventListener("keydown", (event) => {
     const keybind = findKeyMeaning(event.code);
     const curPl = cooperative ? players[keybind.owner] : players[currentTurn];
@@ -328,6 +387,8 @@ window.addEventListener("keydown", (event) => {
     switch (keybind.meaning) {
         case 0:
             const tileUp = getTile(curPl.x, curPl.y - 1);
+
+            players[plId].direction = 0;
             if (!tileUp.collides(2, curPl) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
                 tileUp.changeTo(curTile);
@@ -338,6 +399,7 @@ window.addEventListener("keydown", (event) => {
             break;
         case 1:
             const tileLeft = getTile(curPl.x - 1, curPl.y);
+            players[plId].direction = 1;
             if (!tileLeft.collides(3, curPl) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
                 tileLeft.changeTo(curTile);
@@ -348,6 +410,7 @@ window.addEventListener("keydown", (event) => {
             break;
         case 2:
             const tileDown = getTile(curPl.x, curPl.y + 1);
+            players[plId].direction = 2;
             if (!tileDown.collides(0, curPl) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
                 tileDown.changeTo(curTile);
@@ -358,12 +421,29 @@ window.addEventListener("keydown", (event) => {
             break;
         case 3:
             const tileRight = getTile(curPl.x + 1, curPl.y);
+            players[plId].direction = 3;
             if (!tileRight.collides(1, curPl) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
                 tileRight.changeTo(curTile);
                 players[plId].x++;
             } else {
                 finishedTurn = false;
+            }
+            break;
+        case 4:
+            switch (curPl.direction) {
+                case 1:
+                    tryActionOn(getTile(curPl.x - 1, curPl.y), 1, curPl);
+                    break;
+                case 2:
+                    tryActionOn(getTile(curPl.x, curPl.y + 1), 2, curPl);
+                    break;
+                case 3:
+                    tryActionOn(getTile(curPl.x + 1, curPl.y), 3, curPl);
+                    break;
+                default:
+                    tryActionOn(getTile(curPl.x, curPl.y - 1), 0, curPl);
+                    break;
             }
             break;
         default:
@@ -376,6 +456,12 @@ window.addEventListener("keydown", (event) => {
         }
     }
 });
+
+function tryActionOn(tile, direction, player) {
+    if (tile.doFacingAction && typeof tile.doFacingAction === "function") {
+        tile.doFacingAction(direction, player);
+    }
+}
 
 function tile(x = 0, y = 0, fillStyle = "white") {
     const oldStyle = ctx.fillStyle;
@@ -395,8 +481,12 @@ function render() {
 
     for (let y = 0; y < arenaHeight; y++) {
         for (let x = 0; x < arenaWidth; x++) {
-            const curTile = arenaMap[y][x];
-            tile(curTile.x, curTile.y, curTile.color);
+            const curTile = getTile(x, y);
+            const underTile = curTile.oldTile;
+            if (underTile) {
+                tile(underTile.x, underTile.y, underTile.getColor());
+            }
+            tile(curTile.x, curTile.y, curTile.getColor());
         }
     }
 
@@ -458,7 +548,7 @@ function render() {
     const keys = players[currentTurn].keys;
     hctx.textAlign = "left";
     hctx.textBaseline = "middle";
-    hctx.fillText(`Has ${keys} key${keys === 1 ? "" : "s"}`, hud.width / 8 * 2 + 12, hud.height - 12);
+    hctx.fillText(`Has ${keys} key${keys === 1 ? "" : "s"}, facing ${directions[players[currentTurn].direction]}`, hud.width / 8 * 2 + 12, hud.height - 12);
 
     // AGAIN!
     window.requestAnimationFrame(render);
