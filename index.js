@@ -78,6 +78,10 @@ class Space {
         this.oldTile = null;
         this.occupying = null;
     }
+    
+    getColor() {
+    	return this.color;
+    }
 
     changeTo(newSpace) {
         newSpace.x = this.x;
@@ -120,7 +124,10 @@ class Occupied extends Wall {
     constructor(player, x, y) {
         super(x, y);
         this.occupiedBy = player;
-        this.color = player.color;
+    }
+    
+    getColor() {
+    	return this.occupiedBy.color;
     }
 
     toString() {
@@ -132,7 +139,10 @@ class HomeSpace extends Wall {
     constructor(owner, x, y) {
         super(x, y);
         this.owner = owner;
-        this.color = this.owner.color;
+    }
+    
+    getColor() {
+        return this.color = this.owner.color;
     }
 
     collides() {
@@ -450,7 +460,7 @@ function render() {
     for (let y = 0; y < arenaHeight; y++) {
         for (let x = 0; x < arenaWidth; x++) {
             const curTile = arenaMap[y][x];
-            tile(curTile.x, curTile.y, curTile.color);
+            tile(curTile.x, curTile.y, curTile.getColor());
         }
     }
 
