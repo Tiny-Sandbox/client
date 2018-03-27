@@ -261,6 +261,8 @@ function generateRandomTile(rand) {
             return new DirectionalWall(Math.round(Math.random() * 4), j, i);
         default:
             return new Space(j, i);
+    };
+};
 class CooperativeSwitch extends Space {
     constructor(x, y) {
         super(x, y);
