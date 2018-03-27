@@ -41,7 +41,7 @@ let inputs = [
     ["KeyA", "ArrowLeft", "KeyJ"],
     ["KeyS", "ArrowDown", "KeyK"],
     ["KeyD", "ArrowRight", "KeyL"],
-    ["Spacebar"],
+    ["Space", "Space", "Space"],
 ];
 
 function findKeyMeaning(code) {
