@@ -196,6 +196,7 @@ class ToggleableWall extends Wall {
     constructor(x, y) {
         super(x, y);
 
+        this.color = "pink";
         this.closed = true;
     }
 
