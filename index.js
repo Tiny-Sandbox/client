@@ -355,16 +355,16 @@ window.addEventListener("keydown", (event) => {
         case 4:
             switch (curPl.direction) {
                 case 1:
-                    getTile(curPl.x - 1, curPl.y).doFacingAction();
+                    tryActionOn(getTile(curPl.x - 1, curPl.y), 1, curPl);
                     break;
                 case 2:
-                    act3 = getTile(curPl.x, curPl.y + 1).doFacingAction();
+                    tryActionOn(getTile(curPl.x, curPl.y + 1), 2, curPl);
                     break;
                 case 3:
-                    act4 = getTile(curPl.x + 1, curPl.y).doFacingAction();
+                    tryActionOn(getTile(curPl.x + 1, curPl.y), 3, curPl);
                     break;
                 default:
-                    act1 = getTile(curPl.x, curPl.y - 1).doFacingAction();
+                    tryActionOn(getTile(curPl.x, curPl.y - 1), 0, curPl);
                     break;
             }
             break;
@@ -378,6 +378,12 @@ window.addEventListener("keydown", (event) => {
         }
     }
 });
+
+function tryActionOn(tile, direction, player) {
+    if (tile.doFacingAction && typeof tile.doFacingAction === "function") {
+        tile.doFacingAction(direction, player);
+    }
+}
 
 function tile(x = 0, y = 0, fillStyle = "white") {
     const oldStyle = ctx.fillStyle;
