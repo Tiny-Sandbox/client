@@ -459,7 +459,10 @@ function render() {
 
     for (let y = 0; y < arenaHeight; y++) {
         for (let x = 0; x < arenaWidth; x++) {
-            const curTile = arenaMap[y][x];
+            const curTile = getTile(x, y);
+            const underTile = curTile.oldTile;
+            if (underTile) {
+            tile(underTile.x, underTile.y, underTile.getColor());}
             tile(curTile.x, curTile.y, curTile.getColor());
         }
     }
