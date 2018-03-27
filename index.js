@@ -32,9 +32,9 @@ function param(name, url = window.location.href) {
 }
 
 let currentTurn = 0;
-const playerCount = param("players") || 3;
-const sandbox = param("sandbox") == true;
-const cooperative = param("coop") == true;
+const playerCount = param("players") || 2;
+const sandbox = param("sandbox") != true;
+const cooperative = param("coop") != true;
 
 let inputs = [
     ["KeyW", "ArrowUp", "KeyI"],
@@ -74,13 +74,16 @@ class Space {
         this.x = x;
         this.y = y;
         this.color = "white";
+        
         this.oldTile = null;
+        this.occupying = null;
     }
 
     changeTo(newSpace) {
         newSpace.x = this.x;
         newSpace.y = this.y;
         newSpace.oldTile = this;
+        newSpace.occupying = this.constructor.name;
         arenaMap[this.y][this.x] = newSpace;
     }
 
@@ -234,12 +237,39 @@ class ItemBox extends Space {
     }
 }
 
+class CooperativeSwitch extends Space {
+	constructor(x, y) {
+  	super(x, y);
+    
+    this.color = "#7777FF";
+  }
+}
+
+class CooperativePuzzleWall extends Wall {
+	constructor(strengthNeeded, x, y) {
+  	super(x, y);
+    
+    this.color = "#9999FF";
+    this.strengthNeeded = strengthNeeded;
+  }
+  
+  collides() {
+  	return getMatchingTiles(function(item){if(item.constructor.name!=="Occupied")return false;
+    	return item.oldTile.constructor.name === "CooperativeSwitch";
+    }).length < this.strengthNeeded;
+  }
+  
+  toString() {
+  	return `Cooperative wall`;
+  }
+}
+
 function makeArray(w, h) {
     var arr = [];
     for (i = 0; i < h; i++) {
         arr[i] = [];
         for (j = 0; j < w; j++) {
-            const random = Math.round(Math.random() * 20);
+            const random = Math.round(Math.random() * 40);
             arr[i][j] = (function() {
                 switch (random) {
                     case 0:
@@ -253,6 +283,10 @@ function makeArray(w, h) {
                         return new DirectionalWall(Math.round(Math.random() * 4), j, i);
                     case 5:
                         return new ToggleableWall(j, i);
+                    case 6:
+                    		return new CooperativeSwitch(j, i);
+                    case 7:
+                    		return new CooperativePuzzleWall(1, j, i);
                     default:
                         return new Space(j, i);
                 }
@@ -262,7 +296,17 @@ function makeArray(w, h) {
     return arr;
 }
 const arenaMap = makeArray(arenaWidth, arenaHeight);
-
+function getMatchingTiles(callback) {
+const matches=[];
+	for (let item of arenaMap) {
+  	for(let item2 of item){
+    if(callback(item2)){
+    matches.push(item2)
+    }
+    }
+  }
+  return matches;
+}
 function getTile(x, y) {
     return arenaMap[y][x];
 }
