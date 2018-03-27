@@ -288,7 +288,7 @@ canvas.addEventListener("mousemove", (event) => {
     };
 });
 
-window.addEventListener("keypress", (event) => {
+window.addEventListener("keydown", (event) => {
 		const keybind = findKeyMeaning(event.code);
     const curPl = cooperative ? players[keybind.owner] : players[currentTurn];
     const plId = curPl.id;
