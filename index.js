@@ -74,13 +74,13 @@ class Space {
         this.x = x;
         this.y = y;
         this.color = "white";
-        
+
         this.oldTile = null;
         this.occupying = null;
     }
-    
+
     getColor() {
-    	return this.color;
+        return this.color;
     }
 
     changeTo(newSpace) {
@@ -125,9 +125,9 @@ class Occupied extends Wall {
         super(x, y);
         this.occupiedBy = player;
     }
-    
+
     getColor() {
-    	return this.occupiedBy.color;
+        return this.occupiedBy.color;
     }
 
     toString() {
@@ -140,7 +140,7 @@ class HomeSpace extends Wall {
         super(x, y);
         this.owner = owner;
     }
-    
+
     getColor() {
         return this.color = this.owner.color;
     }
@@ -248,30 +248,31 @@ class ItemBox extends Space {
 }
 
 class CooperativeSwitch extends Space {
-	constructor(x, y) {
-  	super(x, y);
-    
-    this.color = "#7777FF";
-  }
+    constructor(x, y) {
+        super(x, y);
+
+        this.color = "#7777FF";
+    }
 }
 
 class CooperativePuzzleWall extends Wall {
-	constructor(strengthNeeded, x, y) {
-  	super(x, y);
-    
-    this.color = "#9999FF";
-    this.strengthNeeded = strengthNeeded;
-  }
-  
-  collides() {
-  	return getMatchingTiles(function(item){if(item.constructor.name!=="Occupied")return false;
-    	return item.oldTile.constructor.name === "CooperativeSwitch";
-    }).length < this.strengthNeeded;
-  }
-  
-  toString() {
-  	return `Cooperative wall`;
-  }
+    constructor(strengthNeeded, x, y) {
+        super(x, y);
+
+        this.color = "#9999FF";
+        this.strengthNeeded = strengthNeeded;
+    }
+
+    collides() {
+        return getMatchingTiles(function(item) {
+            if (item.constructor.name !== "Occupied") return false;
+            return item.oldTile.constructor.name === "CooperativeSwitch";
+        }).length < this.strengthNeeded;
+    }
+
+    toString() {
+        return `Cooperative wall`;
+    }
 }
 
 function makeArray(w, h) {
@@ -294,9 +295,9 @@ function makeArray(w, h) {
                     case 5:
                         return new ToggleableWall(j, i);
                     case 6:
-                    		return new CooperativeSwitch(j, i);
+                        return new CooperativeSwitch(j, i);
                     case 7:
-                    		return new CooperativePuzzleWall(Math.floor(Math.random() * playerCount), j, i);
+                        return new CooperativePuzzleWall(Math.floor(Math.random() * playerCount), j, i);
                     default:
                         return new Space(j, i);
                 }
@@ -306,17 +307,19 @@ function makeArray(w, h) {
     return arr;
 }
 const arenaMap = makeArray(arenaWidth, arenaHeight);
+
 function getMatchingTiles(callback) {
-const matches=[];
-	for (let item of arenaMap) {
-  	for(let item2 of item){
-    if(callback(item2)){
-    matches.push(item2)
+    const matches = [];
+    for (let item of arenaMap) {
+        for (let item2 of item) {
+            if (callback(item2)) {
+                matches.push(item2)
+            }
+        }
     }
-    }
-  }
-  return matches;
+    return matches;
 }
+
 function getTile(x, y) {
     return arenaMap[y][x];
 }
@@ -462,7 +465,8 @@ function render() {
             const curTile = getTile(x, y);
             const underTile = curTile.oldTile;
             if (underTile) {
-            tile(underTile.x, underTile.y, underTile.getColor());}
+                tile(underTile.x, underTile.y, underTile.getColor());
+            }
             tile(curTile.x, curTile.y, curTile.getColor());
         }
     }
