@@ -297,6 +297,8 @@ canvas.addEventListener("mousemove", (event) => {
     };
 });
 
+const totalKeys = null; // fix this once I am able to get access to the get tiles that match callback
+
 window.addEventListener("keydown", (event) => {
     const keybind = findKeyMeaning(event.code);
     const curPl = cooperative ? players[keybind.owner] : players[currentTurn];
