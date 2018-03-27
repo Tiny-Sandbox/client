@@ -43,15 +43,16 @@ let inputs = [
     ["KeyD", "ArrowRight", "KeyL"],
     ["Spacebar"],
 ];
+
 function findKeyMeaning(code) {
-  for (let index = 0; index < inputs.length; index++) {
-  	if (inputs[index].includes(code)) {
-    	return {
-      	meaning: index,
-        owner: inputs[index].indexOf(code),
-      };
+    for (let index = 0; index < inputs.length; index++) {
+        if (inputs[index].includes(code)) {
+            return {
+                meaning: index,
+                owner: inputs[index].indexOf(code),
+            };
+        }
     }
-  }
 }
 
 class Player {
@@ -60,7 +61,7 @@ class Player {
 
         this.x = x;
         this.y = y;
-	this.direction = 0;
+        this.direction = 0;
 
         this.color = `hsl(${this.id / playerCount * 360}, 50%, 50%)`;
 
@@ -125,19 +126,19 @@ class Occupied extends Wall {
 }
 
 class HomeSpace extends Wall {
-	constructor(owner, x, y) {
-  	super(x, y);
-    this.owner = owner;
-    this.color = this.owner.color;
-  }
-  
-  collides() {
-  	return currentTurn !== this.owner.id;
-  }
-  
-  toString() {
-  		return `Player ${this.owner.id + 1}'s home tile`;
-  }
+    constructor(owner, x, y) {
+        super(x, y);
+        this.owner = owner;
+        this.color = this.owner.color;
+    }
+
+    collides() {
+        return currentTurn !== this.owner.id;
+    }
+
+    toString() {
+        return `Player ${this.owner.id + 1}'s home tile`;
+    }
 }
 
 class LockedWall extends Wall {
@@ -154,7 +155,7 @@ class LockedWall extends Wall {
             return true;
         } else {
             if (this.takeAwayKeys) {
-               players[currentTurn].keys -= this.keysNeeded;
+                players[currentTurn].keys -= this.keysNeeded;
             }
             return false;
         }
@@ -191,24 +192,24 @@ class DirectionalWall extends Wall {
 }
 
 class ToggleableWall extends Wall {
-	// this type of wall can be toggled for collision, but starts out closed
-  constructor(x, y) {
-  	super(x, y);
-    
-    this.closed = true;
-  }
-  
-  collides() {
-  	return this.closed;
-  }
-	
-doFacingAction(direction, player) {
-	this.closed = !this.closed;
-}
-  
-  toString() {
-  	return `${this.closed ? "Closed t" : "T"}oggleable wall`;
-  }
+    // this type of wall can be toggled for collision, but starts out closed
+    constructor(x, y) {
+        super(x, y);
+
+        this.closed = true;
+    }
+
+    collides() {
+        return this.closed;
+    }
+
+    doFacingAction(direction, player) {
+        this.closed = !this.closed;
+    }
+
+    toString() {
+        return `${this.closed ? "Closed t" : "T"}oggleable wall`;
+    }
 }
 
 class ItemBox extends Space {
@@ -221,8 +222,8 @@ class ItemBox extends Space {
 
     collides() {
         if (this.active) {
-         players[currentTurn].keys += 1;
-         this.active = false;
+            players[currentTurn].keys += 1;
+            this.active = false;
         }
         return false;
     }
@@ -249,8 +250,8 @@ function makeArray(w, h) {
                         return new ItemBox(j, i);
                     case 3:
                         return new DirectionalWall(Math.round(Math.random() * 4), j, i);
-			case 5:
-				return new ToggleableWall(j, i);
+                    case 5:
+                        return new ToggleableWall(j, i);
                     default:
                         return new Space(j, i);
                 }
@@ -272,7 +273,7 @@ for (let p = 0; p < playerCount; p++) {
 
     players.push(new Player(p, playerX, playerY));
 
-		getTile(playerX, playerY).changeTo(new HomeSpace(players[p]));
+    getTile(playerX, playerY).changeTo(new HomeSpace(players[p]));
     getTile(playerX, playerY).changeTo(new Occupied(players[p]));
 }
 
@@ -296,10 +297,10 @@ canvas.addEventListener("mousemove", (event) => {
 });
 
 window.addEventListener("keydown", (event) => {
-		const keybind = findKeyMeaning(event.code);
+    const keybind = findKeyMeaning(event.code);
     const curPl = cooperative ? players[keybind.owner] : players[currentTurn];
     const plId = curPl.id;
-    
+
     let curTile = getTile(curPl.x, curPl.y);
 
     let finishedTurn = true; // Only set to false if none of the keys with a case below were pressed or failed move.
@@ -307,8 +308,8 @@ window.addEventListener("keydown", (event) => {
     switch (keybind.meaning) {
         case 0:
             const tileUp = getTile(curPl.x, curPl.y - 1);
-		    
-		    players[plId].direction = 0;
+
+            players[plId].direction = 0;
             if (!tileUp.collides(2) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
                 tileUp.changeTo(curTile);
@@ -319,7 +320,7 @@ window.addEventListener("keydown", (event) => {
             break;
         case 1:
             const tileLeft = getTile(curPl.x - 1, curPl.y);
-		    players[plId].direction = 1;
+            players[plId].direction = 1;
             if (!tileLeft.collides(3) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
                 tileLeft.changeTo(curTile);
@@ -330,7 +331,7 @@ window.addEventListener("keydown", (event) => {
             break;
         case 2:
             const tileDown = getTile(curPl.x, curPl.y + 1);
-		    players[plId].direction = 2;
+            players[plId].direction = 2;
             if (!tileDown.collides(0) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
                 tileDown.changeTo(curTile);
@@ -341,7 +342,7 @@ window.addEventListener("keydown", (event) => {
             break;
         case 3:
             const tileRight = getTile(curPl.x + 1, curPl.y);
-		    players[plId].direction = 3;
+            players[plId].direction = 3;
             if (!tileRight.collides(1) || (sandbox && event.shiftKey)) {
                 curTile.changeBack();
                 tileRight.changeTo(curTile);
@@ -350,22 +351,22 @@ window.addEventListener("keydown", (event) => {
                 finishedTurn = false;
             }
             break;
-	    case 4:
-		    switch (curPl.direction) {
-			    case 1:
-				    getTile(curPl.x - 1, curPl.y).doFacingAction();
-				    break;
-			    case 2:
-				    act3 = getTile(curPl.x, curPl.y - 1).doFacingAction();
-				    break;
-			    case 3:
-				    act4 = getTile(curPl.x + 1, curPl.y).doFacingAction();
-				    break;
-			    default:
-				 act1 = getTile(curPl.x, curPl.y + 1).doFacingAction();
-				break;
-		    }
-		    break;
+        case 4:
+            switch (curPl.direction) {
+                case 1:
+                    getTile(curPl.x - 1, curPl.y).doFacingAction();
+                    break;
+                case 2:
+                    act3 = getTile(curPl.x, curPl.y - 1).doFacingAction();
+                    break;
+                case 3:
+                    act4 = getTile(curPl.x + 1, curPl.y).doFacingAction();
+                    break;
+                default:
+                    act1 = getTile(curPl.x, curPl.y + 1).doFacingAction();
+                    break;
+            }
+            break;
         default:
             finishedTurn = false;
     }
@@ -422,10 +423,10 @@ function render() {
 
     hctx.font = "12px Ubuntu";
     hctx.textBaseline = "top";
-    
+
     if (sandbox) {
-    	hctx.textAlign = "right";
-      hctx.fillText("*", hud.width / 4 - 1, 0);
+        hctx.textAlign = "right";
+        hctx.fillText("*", hud.width / 4 - 1, 0);
     }
 
     hctx.textAlign = "left";
