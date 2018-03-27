@@ -144,7 +144,7 @@ class HomeSpace extends Wall {
 class LockedWall extends Wall {
     constructor(x, y, keysNeeded = 1, takeAwayKeys = false) {
         super(x, y);
-        this.color = "#222222";
+        this.color = "slategray";
 
         this.keysNeeded = keysNeeded;
         this.takeAwayKeys = takeAwayKeys;
