@@ -358,13 +358,13 @@ window.addEventListener("keydown", (event) => {
                     getTile(curPl.x - 1, curPl.y).doFacingAction();
                     break;
                 case 2:
-                    act3 = getTile(curPl.x, curPl.y - 1).doFacingAction();
+                    act3 = getTile(curPl.x, curPl.y + 1).doFacingAction();
                     break;
                 case 3:
                     act4 = getTile(curPl.x + 1, curPl.y).doFacingAction();
                     break;
                 default:
-                    act1 = getTile(curPl.x, curPl.y + 1).doFacingAction();
+                    act1 = getTile(curPl.x, curPl.y - 1).doFacingAction();
                     break;
             }
             break;
