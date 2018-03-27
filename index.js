@@ -286,7 +286,7 @@ function makeArray(w, h) {
                     case 6:
                     		return new CooperativeSwitch(j, i);
                     case 7:
-                    		return new CooperativePuzzleWall(1, j, i);
+                    		return new CooperativePuzzleWall(Math.floor(Math.random() * players.length), j, i);
                     default:
                         return new Space(j, i);
                 }
