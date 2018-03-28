@@ -135,6 +135,20 @@ class Occupied extends Wall {
     }
 }
 
+class Turf extends Space {
+	constructor(x, y) {
+		super(x, y);
+		this.capturedBy = null;
+    }
+	getColor() {
+		return this.capturedBy ? this.capturedBy.color : "#FFFFFF";
+    }
+	collides(d, p) {
+		this.capturedBy = p;
+		return false;
+    }
+}
+
 class HomeSpace extends Wall {
     constructor(owner, x, y) {
         super(x, y);
@@ -259,6 +273,8 @@ function generateRandomTile(rand) {
             return new ItemBox(j, i);
         case 3:
             return new DirectionalWall(Math.round(Math.random() * 4), j, i);
+        case 6:
+            return new Turf(j, i);
         default:
             return new Space(j, i);
     };
