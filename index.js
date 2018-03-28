@@ -1,3 +1,7 @@
+/* --------------------------------------------------------------------------
+    Helpful functions
+----------------------------------------------------------------------------- */
+
 // derived from https://stackoverflow.com/a/901144
 function param(name, url = window.location.href) {
     name = name.replace(/[\[\]]/g, "\\$&");
@@ -118,6 +122,10 @@ function tryActionOn(tile, direction, player) {
         tile.doFacingAction(direction, player);
     }
 }
+
+/* --------------------------------------------------------------------------
+    Tile classes
+----------------------------------------------------------------------------- */
 
 (async function () {
     const canvas = document.getElementById("c");
