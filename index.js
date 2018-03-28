@@ -109,6 +109,17 @@ class Space {
     }
 }
 
+class SpawnableTile extends Space {
+    constructor(restrictedTo, x, y) {
+        super(x, y);
+        this.restriction = restrictedTo ? restrictedTo : null;
+    }
+
+    toString() {
+        return `Spawn space`;
+    }
+}
+
 class Wall extends Space {
     constructor(x, y) {
         super(x, y);
@@ -318,6 +329,7 @@ function makeArray(w, h) {
     return arr;
 }
 const arenaMap = makeArray(arenaWidth, arenaHeight);
+arenaMap[0][0] = new SpawnableTile(null, 0, 0);
 
 function getMatchingTiles(callback) {
     const matches = [];
@@ -348,10 +360,19 @@ function getMatchingTiles(callback) {
 
     return matching;
 }
-function getSpaces() {
-    return getMatchingTiles(function (tile) {
-        return tile.constructor.name === "Space";
+function getSpawnables(pid) {
+    const directlySpawnable = getMatchingTiles(function (tile) {
+        return tile.constructor.name === "SpawnableTile" && (tile.restriction === pid || tile.restriction === null);
     });
+
+    if (directlySpawnable.length > 0) {
+        return directlySpawnable;
+    } else {
+        // If no spawnable tiles to be found, just spawn on a space.
+        return getMatchingTiles(function (tile) {
+            return tile.constructor.name === "Space";
+        });
+    }
 }
 function randItem(array) {
     return array[Math.floor(Math.random() * array.length)];
@@ -364,7 +385,7 @@ function generateBase(player) {
 
 const players = [];
 for (let p = 0; p < playerCount; p++) {
-    const randSpace = randItem(getSpaces());
+    const randSpace = randItem(getSpawnables(p));
     const playerX = randSpace.x;
     const playerY = randSpace.y;
 
