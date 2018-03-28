@@ -26,19 +26,8 @@
 
     function generateRandomTile(rand) {
         switch (Math.round(Math.random() * rand)) {
-            case 5:
-                return new LockedWall(j, i, Math.round(Math.random() * 2) + 1, Math.round(Math.random()));
-            case 1:
-            case 2:
-                return new Wall(j, i);
-            case 4:
-                return new ItemBox(j, i);
-            case 3:
-                return new DirectionalWall(Math.round(Math.random() * 4), j, i);
-            case 6:
-                return new Turf(j, i);
             default:
-                return new Space(j, i);
+                return new Turf(j, i);
         };
     };
 
