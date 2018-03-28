@@ -127,6 +127,252 @@ function tryActionOn(tile, direction, player) {
     Tile classes
 ----------------------------------------------------------------------------- */
 
+class Player {
+    constructor(id, x, y) {
+        this.id = id;
+
+        this.x = x;
+        this.y = y;
+        this.direction = 0;
+
+        this.color = `hsl(${this.id / playerCount * 360}, 50%, 50%)`;
+
+        this.keys = 0;
+    }
+}
+
+class Space {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.color = "white";
+
+        this.oldTile = null;
+        this.occupying = null;
+    }
+
+    getColor() {
+        return this.color;
+    }
+
+    changeTo(newSpace) {
+        newSpace.x = this.x;
+        newSpace.y = this.y;
+        newSpace.oldTile = this;
+        newSpace.occupying = this.constructor.name;
+        arenaMap[this.y][this.x] = newSpace;
+    }
+
+    collides() {
+        return false; // Spaces don't collide!! 
+    }
+
+    changeBack() {
+        if (this.oldTile) {
+            this.changeTo(this.oldTile);
+            return true;
+        } else {
+            return false; // Can't change back if there wasn't a tile to revert to.
+        }
+    }
+
+    toString() {
+        return this.constructor.name;
+    }
+}
+
+class SpawnableSpace extends Space {
+    constructor(restrictedTo, x, y) {
+        super(x, y);
+        this.restriction = restrictedTo ? restrictedTo : null;
+    }
+
+    toString() {
+        return `Spawn space`;
+    }
+}
+
+class Wall extends Space {
+    constructor(x, y) {
+        super(x, y);
+        this.color = "black";
+    }
+
+    collides() {
+        return true; // Walls are walls...
+    }
+}
+
+class Occupied extends Wall {
+    constructor(player, x, y) {
+        super(x, y);
+        this.occupiedBy = player;
+    }
+
+    getColor() {
+        return this.occupiedBy.color;
+    }
+
+    toString() {
+        return `Player ${this.occupiedBy.id + 1}'s tile`;
+    }
+}
+
+class Turf extends Space {
+    constructor(x, y) {
+        super(x, y);
+        this.capturedBy = null;
+    }
+    getColor() {
+        return this.capturedBy ? this.capturedBy.color : "#FFFFFF";
+    }
+    collides(d, p) {
+        this.capturedBy = p;
+        return false;
+    }
+}
+
+class HomeSpace extends Wall {
+    constructor(owner, x, y) {
+        super(x, y);
+        this.owner = owner;
+        this.color = this.owner.color;
+    }
+
+    collides(direction, player) {
+        return player.id !== this.owner.id;
+    }
+
+    getColor() {
+        return this.color = this.owner.color;
+    }
+
+    toString() {
+        return `Player ${this.owner.id + 1}'s home tile`;
+    }
+}
+
+class LockedWall extends Wall {
+    constructor(x, y, keysNeeded = 1, takeAwayKeys = false) {
+        super(x, y);
+        this.color = "slategray";
+
+        this.keysNeeded = keysNeeded;
+        this.takeAwayKeys = takeAwayKeys;
+    }
+
+    collides(direction, player) {
+        if (player.keys < this.keysNeeded) {
+            return true;
+        } else {
+            if (this.takeAwayKeys) {
+                players[player.id].keys -= this.keysNeeded;
+            }
+            return false;
+        }
+    }
+
+    toString() {
+        return `${this.takeAwayKeys ? "Unstable l" : "L"}ocked wall requiring ${this.keysNeeded} key${this.keysNeeded === 1 ? "" : "s"}`;
+    }
+}
+
+const directions = [
+    "north",
+    "east",
+    "south",
+    "west",
+];
+
+class DirectionalWall extends Wall {
+    // this type of wall only collides in one direction
+    constructor(direction, x, y) {
+        super(x, y);
+
+        this.color = "#FFEE00";
+        this.direction = direction > -1 && direction < 4 ? direction : 0;
+    }
+
+    collides(direction = 2) {
+        return direction === this.direction;
+    }
+
+    toString() {
+        return `One-way gate facing ${directions[this.direction]}`;
+    }
+}
+
+class ToggleableWall extends Wall {
+    // this type of wall can be toggled for collision, but starts out closed
+    constructor(x, y) {
+        super(x, y);
+
+        this.color = "pink";
+        this.closed = true;
+    }
+
+    collides() {
+        return this.closed;
+    }
+
+    doFacingAction(direction, player) {
+        this.closed = !this.closed;
+    }
+
+    toString() {
+        return `${this.closed ? "Closed t" : "T"}oggleable wall`;
+    }
+}
+
+class ItemBox extends Space {
+    constructor(x, y) {
+        super(x, y);
+
+        this.color = "#dd66ff";
+        this.active = true;
+    }
+
+    collides(direction, player) {
+        if (this.active) {
+            players[player.id].keys += 1;
+            this.active = false;
+        }
+        return false;
+    }
+
+    toString() {
+        return this.active ? "Item box" : "Empty item box";
+    }
+}
+
+class CooperativeSwitch extends Space {
+    constructor(x, y) {
+        super(x, y);
+
+        this.color = "#7777FF";
+    }
+}
+
+class CooperativePuzzleWall extends Wall {
+    constructor(strengthNeeded, x, y) {
+        super(x, y);
+
+        this.color = "#9999FF";
+        this.strengthNeeded = strengthNeeded;
+    }
+
+    collides() {
+        return getMatchingTiles((item) => {
+            if (item.constructor.name !== "Occupied") return false;
+            return item.oldTile.constructor.name === "CooperativeSwitch";
+        }).length < this.strengthNeeded;
+    }
+
+    toString() {
+        return `Cooperative wall`;
+    }
+}
+
 (async function () {
     const canvas = document.getElementById("c");
     const ctx = canvas.getContext("2d");
@@ -163,252 +409,6 @@ function tryActionOn(tile, direction, player) {
         ["KeyD", "KeyL", "ArrowRight"],
         ["Spacebar"],
     ];
-
-    class Player {
-        constructor(id, x, y) {
-            this.id = id;
-
-            this.x = x;
-            this.y = y;
-            this.direction = 0;
-
-            this.color = `hsl(${this.id / playerCount * 360}, 50%, 50%)`;
-
-            this.keys = 0;
-        }
-    }
-
-    class Space {
-        constructor(x, y) {
-            this.x = x;
-            this.y = y;
-            this.color = "white";
-
-            this.oldTile = null;
-            this.occupying = null;
-        }
-
-        getColor() {
-            return this.color;
-        }
-
-        changeTo(newSpace) {
-            newSpace.x = this.x;
-            newSpace.y = this.y;
-            newSpace.oldTile = this;
-            newSpace.occupying = this.constructor.name;
-            arenaMap[this.y][this.x] = newSpace;
-        }
-
-        collides() {
-            return false; // Spaces don't collide!! 
-        }
-
-        changeBack() {
-            if (this.oldTile) {
-                this.changeTo(this.oldTile);
-                return true;
-            } else {
-                return false; // Can't change back if there wasn't a tile to revert to.
-            }
-        }
-
-        toString() {
-            return this.constructor.name;
-        }
-    }
-
-    class SpawnableSpace extends Space {
-        constructor(restrictedTo, x, y) {
-            super(x, y);
-            this.restriction = restrictedTo ? restrictedTo : null;
-        }
-
-        toString() {
-            return `Spawn space`;
-        }
-    }
-
-    class Wall extends Space {
-        constructor(x, y) {
-            super(x, y);
-            this.color = "black";
-        }
-
-        collides() {
-            return true; // Walls are walls...
-        }
-    }
-
-    class Occupied extends Wall {
-        constructor(player, x, y) {
-            super(x, y);
-            this.occupiedBy = player;
-        }
-
-        getColor() {
-            return this.occupiedBy.color;
-        }
-
-        toString() {
-            return `Player ${this.occupiedBy.id + 1}'s tile`;
-        }
-    }
-
-    class Turf extends Space {
-        constructor(x, y) {
-            super(x, y);
-            this.capturedBy = null;
-        }
-        getColor() {
-            return this.capturedBy ? this.capturedBy.color : "#FFFFFF";
-        }
-        collides(d, p) {
-            this.capturedBy = p;
-            return false;
-        }
-    }
-
-    class HomeSpace extends Wall {
-        constructor(owner, x, y) {
-            super(x, y);
-            this.owner = owner;
-            this.color = this.owner.color;
-        }
-
-        collides(direction, player) {
-            return player.id !== this.owner.id;
-        }
-
-        getColor() {
-            return this.color = this.owner.color;
-        }
-
-        toString() {
-            return `Player ${this.owner.id + 1}'s home tile`;
-        }
-    }
-
-    class LockedWall extends Wall {
-        constructor(x, y, keysNeeded = 1, takeAwayKeys = false) {
-            super(x, y);
-            this.color = "slategray";
-
-            this.keysNeeded = keysNeeded;
-            this.takeAwayKeys = takeAwayKeys;
-        }
-
-        collides(direction, player) {
-            if (player.keys < this.keysNeeded) {
-                return true;
-            } else {
-                if (this.takeAwayKeys) {
-                    players[player.id].keys -= this.keysNeeded;
-                }
-                return false;
-            }
-        }
-
-        toString() {
-            return `${this.takeAwayKeys ? "Unstable l" : "L"}ocked wall requiring ${this.keysNeeded} key${this.keysNeeded === 1 ? "" : "s"}`;
-        }
-    }
-
-    const directions = [
-        "north",
-        "east",
-        "south",
-        "west",
-    ];
-
-    class DirectionalWall extends Wall {
-        // this type of wall only collides in one direction
-        constructor(direction, x, y) {
-            super(x, y);
-
-            this.color = "#FFEE00";
-            this.direction = direction > -1 && direction < 4 ? direction : 0;
-        }
-
-        collides(direction = 2) {
-            return direction === this.direction;
-        }
-
-        toString() {
-            return `One-way gate facing ${directions[this.direction]}`;
-        }
-    }
-
-    class ToggleableWall extends Wall {
-        // this type of wall can be toggled for collision, but starts out closed
-        constructor(x, y) {
-            super(x, y);
-
-            this.color = "pink";
-            this.closed = true;
-        }
-
-        collides() {
-            return this.closed;
-        }
-
-        doFacingAction(direction, player) {
-            this.closed = !this.closed;
-        }
-
-        toString() {
-            return `${this.closed ? "Closed t" : "T"}oggleable wall`;
-        }
-    }
-
-    class ItemBox extends Space {
-        constructor(x, y) {
-            super(x, y);
-
-            this.color = "#dd66ff";
-            this.active = true;
-        }
-
-        collides(direction, player) {
-            if (this.active) {
-                players[player.id].keys += 1;
-                this.active = false;
-            }
-            return false;
-        }
-
-        toString() {
-            return this.active ? "Item box" : "Empty item box";
-        }
-    }
-
-    class CooperativeSwitch extends Space {
-        constructor(x, y) {
-            super(x, y);
-
-            this.color = "#7777FF";
-        }
-    }
-
-    class CooperativePuzzleWall extends Wall {
-        constructor(strengthNeeded, x, y) {
-            super(x, y);
-
-            this.color = "#9999FF";
-            this.strengthNeeded = strengthNeeded;
-        }
-
-        collides() {
-            return getMatchingTiles((item) => {
-                if (item.constructor.name !== "Occupied") return false;
-                return item.oldTile.constructor.name === "CooperativeSwitch";
-            }).length < this.strengthNeeded;
-        }
-
-        toString() {
-            return `Cooperative wall`;
-        }
-    }
 
     getTile(0, 0).changeTo(new SpawnableSpace(null));
     getTile(0, arenaHeight).changeTo(new SpawnableSpace(null));
