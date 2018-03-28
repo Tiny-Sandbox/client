@@ -92,8 +92,8 @@
     }
 
     function generateBase(player) {
-        getTile(player.x, player.y).changeTo(new HomeSpace(player));
-        getTile(player.x, player.y).changeTo(new Occupied(player));
+        getTile(player.position.x, player.position.y).changeTo(new HomeSpace(player));
+        getTile(player.position.x, player.position.y).changeTo(new Occupied(player));
     }
 
     function getMousePos(evt) {
@@ -134,8 +134,11 @@
         constructor(id, x, y) {
             this.id = id;
 
-            this.x = x;
-            this.y = y;
+            this.position = {
+                x: x,
+                y: y,
+            };
+
             this.direction = 0;
 
             this.color = `hsl(${this.id / playerCount * 360}, 50%, 50%)`;
@@ -146,8 +149,11 @@
 
     class Space {
         constructor(x, y) {
-            this.x = x;
-            this.y = y;
+            this.position = {
+                x: x,
+                y: y,
+            };
+
             this.color = "white";
 
             this.oldTile = null;
@@ -159,11 +165,11 @@
         }
 
         changeTo(newSpace) {
-            newSpace.x = this.x;
-            newSpace.y = this.y;
+            newSpace.position.x = this.position.x;
+            newSpace.position.y = this.position.y;
             newSpace.oldTile = this;
             newSpace.occupying = this.constructor.name;
-            arenaMap[this.y][this.x] = newSpace;
+            arenaMap[this.position.y][this.position.x] = newSpace;
         }
 
         collides() {
@@ -426,8 +432,8 @@
     const players = [];
     for (let p = 0; p < playerCount; p++) {
         const randSpace = randItem(getSpawnables(p));
-        const playerX = randSpace.x;
-        const playerY = randSpace.y;
+        const playerX = randSpace.position.x;
+        const playerY = randSpace.position.y;
 
         players.push(new Player(p, playerX, playerY));
         generateBase(players[p]);
@@ -448,52 +454,52 @@
         const currentPlayer = cooperativeMode ? players[keyInfo.owner] : players[currentTurn];
         const currentID = currentPlayer.id;
 
-        let curTile = getTile(currentPlayer.x, currentPlayer.y);
+        let curTile = getTile(currentPlayer.position.x, currentPlayer.position.y);
 
         let turnHasFinished = true; // Only set to false if none of the keys with a case below were pressed or failed move.
 
         switch (keyInfo.meaning) {
             case 0:
-                const tileUp = getTile(currentPlayer.x, currentPlayer.y - 1);
+                const tileUp = getTile(currentPlayer.position.x, currentPlayer.position.y - 1);
 
                 players[currentID].direction = 0;
                 if (!tileUp.collides(2, currentPlayer) || (sandbox && event.shiftKey)) {
                     curTile.changeBack();
                     tileUp.changeTo(curTile);
-                    players[currentID].y--;
+                    players[currentID].position.y--;
                 } else {
                     turnHasFinished = false;
                 }
                 break;
             case 1:
-                const tileLeft = getTile(currentPlayer.x - 1, currentPlayer.y);
+                const tileLeft = getTile(currentPlayer.position.x - 1, currentPlayer.position.y);
                 players[currentID].direction = 1;
                 if (!tileLeft.collides(3, currentPlayer) || (sandbox && event.shiftKey)) {
                     curTile.changeBack();
                     tileLeft.changeTo(curTile);
-                    players[currentID].x--;
+                    players[currentID].position.x--;
                 } else {
                     turnHasFinished = false;
                 }
                 break;
             case 2:
-                const tileDown = getTile(currentPlayer.x, currentPlayer.y + 1);
+                const tileDown = getTile(currentPlayer.position.x, currentPlayer.position.y + 1);
                 players[currentID].direction = 2;
                 if (!tileDown.collides(0, currentPlayer) || (sandbox && event.shiftKey)) {
                     curTile.changeBack();
                     tileDown.changeTo(curTile);
-                    players[currentID].y++;
+                    players[currentID].position.y++;
                 } else {
                     turnHasFinished = false;
                 }
                 break;
             case 3:
-                const tileRight = getTile(currentPlayer.x + 1, currentPlayer.y);
+                const tileRight = getTile(currentPlayer.position.x + 1, currentPlayer.position.y);
                 players[currentID].direction = 3;
                 if (!tileRight.collides(1, currentPlayer) || (sandbox && event.shiftKey)) {
                     curTile.changeBack();
                     tileRight.changeTo(curTile);
-                    players[currentID].x++;
+                    players[currentID].position.x++;
                 } else {
                     turnHasFinished = false;
                 }
@@ -501,16 +507,16 @@
             case 4:
                 switch (currentPlayer.direction) {
                     case 1:
-                        tryTileAction(getTile(currentPlayer.x - 1, currentPlayer.y), 1, currentPlayer);
+                        tryTileAction(getTile(currentPlayer.position.x - 1, currentPlayer.position.y), 1, currentPlayer);
                         break;
                     case 2:
-                        tryTileAction(getTile(currentPlayer.x, currentPlayer.y + 1), 2, currentPlayer);
+                        tryTileAction(getTile(currentPlayer.position.x, currentPlayer.position.y + 1), 2, currentPlayer);
                         break;
                     case 3:
-                        tryTileAction(getTile(currentPlayer.x + 1, currentPlayer.y), 3, currentPlayer);
+                        tryTileAction(getTile(currentPlayer.position.x + 1, currentPlayer.position.y), 3, currentPlayer);
                         break;
                     default:
-                        tryTileAction(getTile(currentPlayer.x, currentPlayer.y - 1), 0, currentPlayer);
+                        tryTileAction(getTile(currentPlayer.position.x, currentPlayer.position.y - 1), 0, currentPlayer);
                         break;
                 }
                 break;
@@ -546,9 +552,9 @@
                 const curTile = getTile(x, y);
                 const underTile = curTile.oldTile;
                 if (underTile) {
-                    renderTile(underTile.x, underTile.y, underTile.getColor());
+                    renderTile(underTile.position.x, underTile.position.y, underTile.getColor());
                 }
-                renderTile(curTile.x, curTile.y, curTile.getColor());
+                renderTile(curTile.position.x, curTile.position.y, curTile.getColor());
             }
         }
 
