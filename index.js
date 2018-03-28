@@ -109,7 +109,7 @@ class Space {
     }
 }
 
-class SpawnableTile extends Space {
+class SpawnableSpace extends Space {
     constructor(restrictedTo, x, y) {
         super(x, y);
         this.restriction = restrictedTo ? restrictedTo : null;
@@ -329,7 +329,7 @@ function makeArray(w, h) {
     return arr;
 }
 const arenaMap = makeArray(arenaWidth, arenaHeight);
-arenaMap[0][0] = new SpawnableTile(null, 0, 0);
+arenaMap[0][0] = new SpawnableSpace(null, 0, 0);
 
 function getMatchingTiles(callback) {
     const matches = [];
@@ -362,7 +362,7 @@ function getMatchingTiles(callback) {
 }
 function getSpawnables(pid) {
     const directlySpawnable = getMatchingTiles(function (tile) {
-        return tile.constructor.name === "SpawnableTile" && (tile.restriction === pid || tile.restriction === null);
+        return tile.constructor.name === "SpawnableSpace" && (tile.restriction === pid || tile.restriction === null);
     });
 
     if (directlySpawnable.length > 0) {
