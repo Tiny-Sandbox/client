@@ -102,8 +102,8 @@
             scaleY = canvas.height / rect.height; // relationship bitmap vs. element for Y
 
         return {
-            x: Math.floor((evt.clientX - rect.left) * scaleX / pixelsPerTile), // scale mouse coordinates after they have
-            y: Math.floor((evt.clientY - rect.top) * scaleY / pixelsPerTile) // been adjusted to be relative to element
+            x: Math.floor((evt.clientX - rect.left) * scaleX / tileDensity), // scale mouse coordinates after they have
+            y: Math.floor((evt.clientY - rect.top) * scaleY / tileDensity) // been adjusted to be relative to element
         }
     }
 
@@ -120,7 +120,7 @@
         });
     }
 
-    function tryActionOn(tile, direction, player) {
+    function tryTileAction(tile, direction, player) {
         if (tile.doFacingAction && typeof tile.doFacingAction === "function") {
             tile.doFacingAction(direction, player);
         }
@@ -393,9 +393,9 @@
     const arenaWidth = Math.ceil(Math.random() * 20);
     const arenaHeight = arenaWidth;
 
-    const pixelsPerTile = 16;
-    canvas.width = arenaWidth * pixelsPerTile;
-    canvas.height = arenaHeight * pixelsPerTile;
+    const tileDensity = 16;
+    canvas.width = arenaWidth * tileDensity;
+    canvas.height = arenaHeight * tileDensity;
 
     hud.width = window.innerWidth * 0.80;
     hud.height = window.innerHeight * 0.15;
@@ -406,7 +406,7 @@
     let currentTurn = 0;
     const playerCount = param("players") || 2;
     const sandbox = param("sandbox") != true;
-    const cooperative = param("coop") != true;
+    const cooperativeMode = param("coop") != true;
 
     let inputs = [
         ["KeyW", "KeyI", "ArrowUp"],
@@ -444,80 +444,80 @@
     const totalKeys = null; // fix this once I am able to get access to the get tiles that match callback
 
     window.addEventListener("keydown", (event) => {
-        const keybind = findKeyMeaning(event.code);
-        const curPl = cooperative ? players[keybind.owner] : players[currentTurn];
-        const plId = curPl.id;
+        const keyInfo = findKeyMeaning(event.code);
+        const currentPlayer = cooperativeMode ? players[keyInfo.owner] : players[currentTurn];
+        const currentID = currentPlayer.id;
 
-        let curTile = getTile(curPl.x, curPl.y);
+        let curTile = getTile(currentPlayer.x, currentPlayer.y);
 
-        let finishedTurn = true; // Only set to false if none of the keys with a case below were pressed or failed move.
+        let turnHasFinished = true; // Only set to false if none of the keys with a case below were pressed or failed move.
 
-        switch (keybind.meaning) {
+        switch (keyInfo.meaning) {
             case 0:
-                const tileUp = getTile(curPl.x, curPl.y - 1);
+                const tileUp = getTile(currentPlayer.x, currentPlayer.y - 1);
 
-                players[plId].direction = 0;
-                if (!tileUp.collides(2, curPl) || (sandbox && event.shiftKey)) {
+                players[currentID].direction = 0;
+                if (!tileUp.collides(2, currentPlayer) || (sandbox && event.shiftKey)) {
                     curTile.changeBack();
                     tileUp.changeTo(curTile);
-                    players[plId].y--;
+                    players[currentID].y--;
                 } else {
-                    finishedTurn = false;
+                    turnHasFinished = false;
                 }
                 break;
             case 1:
-                const tileLeft = getTile(curPl.x - 1, curPl.y);
-                players[plId].direction = 1;
-                if (!tileLeft.collides(3, curPl) || (sandbox && event.shiftKey)) {
+                const tileLeft = getTile(currentPlayer.x - 1, currentPlayer.y);
+                players[currentID].direction = 1;
+                if (!tileLeft.collides(3, currentPlayer) || (sandbox && event.shiftKey)) {
                     curTile.changeBack();
                     tileLeft.changeTo(curTile);
-                    players[plId].x--;
+                    players[currentID].x--;
                 } else {
-                    finishedTurn = false;
+                    turnHasFinished = false;
                 }
                 break;
             case 2:
-                const tileDown = getTile(curPl.x, curPl.y + 1);
-                players[plId].direction = 2;
-                if (!tileDown.collides(0, curPl) || (sandbox && event.shiftKey)) {
+                const tileDown = getTile(currentPlayer.x, currentPlayer.y + 1);
+                players[currentID].direction = 2;
+                if (!tileDown.collides(0, currentPlayer) || (sandbox && event.shiftKey)) {
                     curTile.changeBack();
                     tileDown.changeTo(curTile);
-                    players[plId].y++;
+                    players[currentID].y++;
                 } else {
-                    finishedTurn = false;
+                    turnHasFinished = false;
                 }
                 break;
             case 3:
-                const tileRight = getTile(curPl.x + 1, curPl.y);
-                players[plId].direction = 3;
-                if (!tileRight.collides(1, curPl) || (sandbox && event.shiftKey)) {
+                const tileRight = getTile(currentPlayer.x + 1, currentPlayer.y);
+                players[currentID].direction = 3;
+                if (!tileRight.collides(1, currentPlayer) || (sandbox && event.shiftKey)) {
                     curTile.changeBack();
                     tileRight.changeTo(curTile);
-                    players[plId].x++;
+                    players[currentID].x++;
                 } else {
-                    finishedTurn = false;
+                    turnHasFinished = false;
                 }
                 break;
             case 4:
-                switch (curPl.direction) {
+                switch (currentPlayer.direction) {
                     case 1:
-                        tryActionOn(getTile(curPl.x - 1, curPl.y), 1, curPl);
+                        tryTileAction(getTile(currentPlayer.x - 1, currentPlayer.y), 1, currentPlayer);
                         break;
                     case 2:
-                        tryActionOn(getTile(curPl.x, curPl.y + 1), 2, curPl);
+                        tryTileAction(getTile(currentPlayer.x, currentPlayer.y + 1), 2, currentPlayer);
                         break;
                     case 3:
-                        tryActionOn(getTile(curPl.x + 1, curPl.y), 3, curPl);
+                        tryTileAction(getTile(currentPlayer.x + 1, currentPlayer.y), 3, currentPlayer);
                         break;
                     default:
-                        tryActionOn(getTile(curPl.x, curPl.y - 1), 0, curPl);
+                        tryTileAction(getTile(currentPlayer.x, currentPlayer.y - 1), 0, currentPlayer);
                         break;
                 }
                 break;
             default:
-                finishedTurn = false;
+                turnHasFinished = false;
         }
-        if (finishedTurn && !(sandbox && event.altKey)) {
+        if (turnHasFinished && !(sandbox && event.altKey)) {
             currentTurn++;
             if (currentTurn === players.length) {
                 currentTurn = 0;
@@ -525,11 +525,11 @@
         }
     });
 
-    function tile(x = 0, y = 0, fillStyle = "white") {
+    function renderTile(x = 0, y = 0, fillStyle = "white") {
         const oldStyle = ctx.fillStyle;
         ctx.fillStyle = fillStyle;
 
-        ctx.fillRect(x * pixelsPerTile, y * pixelsPerTile, pixelsPerTile, pixelsPerTile);
+        ctx.fillRect(x * tileDensity, y * tileDensity, tileDensity, tileDensity);
 
         ctx.fillStyle = oldStyle;
         return;
@@ -546,9 +546,9 @@
                 const curTile = getTile(x, y);
                 const underTile = curTile.oldTile;
                 if (underTile) {
-                    tile(underTile.x, underTile.y, underTile.getColor());
+                    renderTile(underTile.x, underTile.y, underTile.getColor());
                 }
-                tile(curTile.x, curTile.y, curTile.getColor());
+                renderTile(curTile.x, curTile.y, curTile.getColor());
             }
         }
 
@@ -557,7 +557,7 @@
         hctx.fillRect(0, 0, hud.width, hud.height);
 
         // Get some HUD backgrounds.
-        hctx.fillStyle = cooperative ? "#77ffff" : players[currentTurn].color;
+        hctx.fillStyle = cooperativeMode ? "#77ffff" : players[currentTurn].color;
         hctx.fillRect(0, 0, hud.width / 4, hud.height);
 
         // Cool font and color.
@@ -569,7 +569,7 @@
         hctx.textBaseline = "middle";
 
         // Render some HUD stats.
-        const playerText = cooperative ? "CO-OP" : `PLAYER ${currentTurn + 1}`;
+        const playerText = cooperativeMode ? "CO-OP" : `PLAYER ${currentTurn + 1}`;
         hctx.fillText(playerText, hud.width / 8, hud.height / 2);
 
         hctx.font = "12px Ubuntu";
@@ -583,7 +583,7 @@
         hctx.textAlign = "left";
         const text = [
             "Use WASD, arrows, and/or IJKL to navigate.",
-            cooperative ? "Work together to do things." : "Each player takes turns moving.",
+            cooperativeMode ? "Work together to do things." : "Each player takes turns moving.",
             "You can only move to tiles that are white (empty spaces).",
             "There is no objective yet.",
             "Have fun!"
