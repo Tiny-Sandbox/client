@@ -329,7 +329,6 @@ function makeArray(w, h) {
     return arr;
 }
 const arenaMap = makeArray(arenaWidth, arenaHeight);
-arenaMap[0][0] = new SpawnableSpace(null, 0, 0);
 
 function getMatchingTiles(callback) {
     const matches = [];
@@ -346,6 +345,10 @@ function getMatchingTiles(callback) {
 function getTile(x, y) {
     return arenaMap[y][x];
 }
+getTile(0, 0).changeTo(new SpawnableSpace(null));
+getTile(0, arenaHeight).changeTo(new SpawnableSpace(null));
+getTile(arenaWidth, 0).changeTo(new SpawnableSpace(null));
+getTile(arenaWidth, arenaHeight).changeTo(new SpawnableSpace(null));
 
 function getMatchingTiles(callback) {
     const matching = [];
