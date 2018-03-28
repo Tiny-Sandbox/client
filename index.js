@@ -1,3 +1,124 @@
+// derived from https://stackoverflow.com/a/901144
+function param(name, url = window.location.href) {
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+function findKeyMeaning(code) {
+    for (let index = 0; index < inputs.length; index++) {
+        if (inputs[index].includes(code)) {
+            return {
+                meaning: index,
+                owner: inputs[index].indexOf(code),
+            };
+        }
+    }
+}
+
+function generateRandomTile(rand) {
+    switch (Math.round(Math.random() * rand)) {
+        case 5:
+            return new LockedWall(j, i, Math.round(Math.random() * 2) + 1, Math.round(Math.random()));
+        case 1:
+        case 2:
+            return new Wall(j, i);
+        case 4:
+            return new ItemBox(j, i);
+        case 3:
+            return new DirectionalWall(Math.round(Math.random() * 4), j, i);
+        case 6:
+            return new Turf(j, i);
+        default:
+            return new Space(j, i);
+    };
+};
+
+function getMatchingTiles(callback) {
+    const matches = [];
+    for (let item of arenaMap) {
+        for (let item2 of item) {
+            if (callback(item2)) {
+                matches.push(item2)
+            }
+        }
+    }
+    return matches;
+}
+
+function getTile(x, y) {
+    return arenaMap[y][x];
+}
+
+function getMatchingTiles(callback) {
+    const matching = [];
+
+    for (let item of arenaMap) {
+        for (let item2 of item) {
+            if (callback(item2)) {
+                matching.push(item2)
+            }
+        }
+    }
+
+    return matching;
+}
+
+function getSpawnables(pid) {
+    const directlySpawnable = getMatchingTiles(function (tile) {
+        return tile.constructor.name === "SpawnableSpace" && (tile.restriction === pid || tile.restriction === null);
+    });
+
+    if (directlySpawnable.length > 0) {
+        return directlySpawnable;
+    } else {
+        // If no spawnable tiles to be found, just spawn on a space.
+        return getMatchingTiles(function (tile) {
+            return tile.constructor.name === "Space";
+        });
+    }
+}
+
+function randItem(array) {
+    return array[Math.floor(Math.random() * array.length)];
+}
+
+function generateBase(player) {
+    getTile(player.x, player.y).changeTo(new HomeSpace(player));
+    getTile(player.x, player.y).changeTo(new Occupied(player));
+}
+
+function getMousePos(evt) {
+    var rect = canvas.getBoundingClientRect(), // abs. size of element
+        scaleX = canvas.width / rect.width, // relationship bitmap vs. element for X
+        scaleY = canvas.height / rect.height; // relationship bitmap vs. element for Y
+
+    return {
+        x: Math.floor((evt.clientX - rect.left) * scaleX / pixelsPerTile), // scale mouse coordinates after they have
+        y: Math.floor((evt.clientY - rect.top) * scaleY / pixelsPerTile) // been adjusted to be relative to element
+    }
+}
+
+function makeArray(w, h) {
+    var arr = [];
+    for (i = 0; i < h; i++) {
+        arr[i] = [];
+        for (j = 0; j < w; j++) {
+            arr[i][j] = generateRandomTile(20);
+        }
+    }
+    return arr;
+}
+
+function tryActionOn(tile, direction, player) {
+    if (tile.doFacingAction && typeof tile.doFacingAction === "function") {
+        tile.doFacingAction(direction, player);
+    }
+}
+
 (async function () {
     const canvas = document.getElementById("c");
     const ctx = canvas.getContext("2d");
@@ -22,16 +143,6 @@
     canvas.style.width = window.innerWidth * 0.80 + "px";
     canvas.style.height = window.innerHeight * 0.80 + "px";
 
-    // derived from https://stackoverflow.com/a/901144
-    function param(name, url = window.location.href) {
-        name = name.replace(/[\[\]]/g, "\\$&");
-        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-            results = regex.exec(url);
-        if (!results) return null;
-        if (!results[2]) return '';
-        return decodeURIComponent(results[2].replace(/\+/g, " "));
-    }
-
     let currentTurn = 0;
     const playerCount = param("players") || 2;
     const sandbox = param("sandbox") != true;
@@ -44,17 +155,6 @@
         ["KeyD", "KeyL", "ArrowRight"],
         ["Spacebar"],
     ];
-
-    function findKeyMeaning(code) {
-        for (let index = 0; index < inputs.length; index++) {
-            if (inputs[index].includes(code)) {
-                return {
-                    meaning: index,
-                    owner: inputs[index].indexOf(code),
-                };
-            }
-        }
-    }
 
     class Player {
         constructor(id, x, y) {
@@ -274,23 +374,6 @@
         }
     }
 
-    function generateRandomTile(rand) {
-        switch (Math.round(Math.random() * rand)) {
-            case 5:
-                return new LockedWall(j, i, Math.round(Math.random() * 2) + 1, Math.round(Math.random()));
-            case 1:
-            case 2:
-                return new Wall(j, i);
-            case 4:
-                return new ItemBox(j, i);
-            case 3:
-                return new DirectionalWall(Math.round(Math.random() * 4), j, i);
-            case 6:
-                return new Turf(j, i);
-            default:
-                return new Space(j, i);
-        };
-    };
     class CooperativeSwitch extends Space {
         constructor(x, y) {
             super(x, y);
@@ -319,75 +402,11 @@
         }
     }
 
-    function makeArray(w, h) {
-        var arr = [];
-        for (i = 0; i < h; i++) {
-            arr[i] = [];
-            for (j = 0; j < w; j++) {
-                arr[i][j] = generateRandomTile(20);
-            }
-        }
-        return arr;
-    }
-    const arenaMap = makeArray(arenaWidth, arenaHeight);
-
-    function getMatchingTiles(callback) {
-        const matches = [];
-        for (let item of arenaMap) {
-            for (let item2 of item) {
-                if (callback(item2)) {
-                    matches.push(item2)
-                }
-            }
-        }
-        return matches;
-    }
-
-    function getTile(x, y) {
-        return arenaMap[y][x];
-    }
     getTile(0, 0).changeTo(new SpawnableSpace(null));
     getTile(0, arenaHeight).changeTo(new SpawnableSpace(null));
     getTile(arenaWidth, 0).changeTo(new SpawnableSpace(null));
     getTile(arenaWidth, arenaHeight).changeTo(new SpawnableSpace(null));
 
-    function getMatchingTiles(callback) {
-        const matching = [];
-
-        for (let item of arenaMap) {
-            for (let item2 of item) {
-                if (callback(item2)) {
-                    matching.push(item2)
-                }
-            }
-        }
-
-        return matching;
-    }
-
-    function getSpawnables(pid) {
-        const directlySpawnable = getMatchingTiles(function (tile) {
-            return tile.constructor.name === "SpawnableSpace" && (tile.restriction === pid || tile.restriction === null);
-        });
-
-        if (directlySpawnable.length > 0) {
-            return directlySpawnable;
-        } else {
-            // If no spawnable tiles to be found, just spawn on a space.
-            return getMatchingTiles(function (tile) {
-                return tile.constructor.name === "Space";
-            });
-        }
-    }
-
-    function randItem(array) {
-        return array[Math.floor(Math.random() * array.length)];
-    }
-
-    function generateBase(player) {
-        getTile(player.x, player.y).changeTo(new HomeSpace(player));
-        getTile(player.x, player.y).changeTo(new Occupied(player));
-    }
 
     const players = [];
     for (let p = 0; p < playerCount; p++) {
@@ -399,16 +418,7 @@
         generateBase(players[p]);
     }
 
-    function getMousePos(evt) {
-        var rect = canvas.getBoundingClientRect(), // abs. size of element
-            scaleX = canvas.width / rect.width, // relationship bitmap vs. element for X
-            scaleY = canvas.height / rect.height; // relationship bitmap vs. element for Y
-
-        return {
-            x: Math.floor((evt.clientX - rect.left) * scaleX / pixelsPerTile), // scale mouse coordinates after they have
-            y: Math.floor((evt.clientY - rect.top) * scaleY / pixelsPerTile) // been adjusted to be relative to element
-        }
-    }
+    const arenaMap = makeArray(arenaWidth, arenaHeight);
 
     canvas.addEventListener("mousemove", (event) => {
         const pos = getMousePos(event);
@@ -501,12 +511,6 @@
             }
         }
     });
-
-    function tryActionOn(tile, direction, player) {
-        if (tile.doFacingAction && typeof tile.doFacingAction === "function") {
-            tile.doFacingAction(direction, player);
-        }
-    }
 
     function tile(x = 0, y = 0, fillStyle = "white") {
         const oldStyle = ctx.fillStyle;
