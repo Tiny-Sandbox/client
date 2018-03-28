@@ -419,9 +419,9 @@
     const arenaMap = await makeArray(arenaWidth, arenaHeight);
 
     getTile(0, 0).changeTo(new SpawnableSpace(null));
-    getTile(0, arenaHeight).changeTo(new SpawnableSpace(null));
-    getTile(arenaWidth, 0).changeTo(new SpawnableSpace(null));
-    getTile(arenaWidth, arenaHeight).changeTo(new SpawnableSpace(null));
+    getTile(0, arenaHeight - 1).changeTo(new SpawnableSpace(null));
+    getTile(arenaWidth - 1, 0).changeTo(new SpawnableSpace(null));
+    getTile(arenaWidth - 1, arenaHeight - 1).changeTo(new SpawnableSpace(null));
 
     const players = [];
     for (let p = 0; p < playerCount; p++) {
