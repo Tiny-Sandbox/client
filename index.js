@@ -107,14 +107,16 @@ function getMousePos(evt) {
 }
 
 function makeArray(w, h) {
-    var arr = [];
-    for (i = 0; i < h; i++) {
-        arr[i] = [];
-        for (j = 0; j < w; j++) {
-            arr[i][j] = generateRandomTile(20);
+    return new Promise(resolve => {
+        var arr = [];
+        for (i = 0; i < h; i++) {
+            arr[i] = [];
+            for (j = 0; j < w; j++) {
+                arr[i][j] = generateRandomTile(20);
+            }
         }
-    }
-    return arr;
+        resolve(arr);
+    });
 }
 
 function tryActionOn(tile, direction, player) {
@@ -410,11 +412,12 @@ class CooperativePuzzleWall extends Wall {
         ["Spacebar"],
     ];
 
+    const arenaMap = await makeArray(arenaWidth, arenaHeight);
+
     getTile(0, 0).changeTo(new SpawnableSpace(null));
     getTile(0, arenaHeight).changeTo(new SpawnableSpace(null));
     getTile(arenaWidth, 0).changeTo(new SpawnableSpace(null));
     getTile(arenaWidth, arenaHeight).changeTo(new SpawnableSpace(null));
-
 
     const players = [];
     for (let p = 0; p < playerCount; p++) {
@@ -425,8 +428,6 @@ class CooperativePuzzleWall extends Wall {
         players.push(new Player(p, playerX, playerY));
         generateBase(players[p]);
     }
-
-    const arenaMap = makeArray(arenaWidth, arenaHeight);
 
     canvas.addEventListener("mousemove", (event) => {
         const pos = getMousePos(event);
