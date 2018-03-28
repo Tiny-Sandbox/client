@@ -65,14 +65,21 @@
         const directlySpawnable = getMatchingTiles(function (tile) {
             return tile.constructor.name === "SpawnableSpace" && (tile.restriction === pid || tile.restriction === null);
         });
+        const spawnableSpaces = getMatchingTiles(function (tile) {
+            return tile.constructor.name === "Space";
+        });
+        const collidableSpaces = getMatchingTiles(function (tile) {
+            return !tile.collides();
+        })
 
         if (directlySpawnable.length > 0) {
             return directlySpawnable;
-        } else {
+        } else if (spawnableSpaces.length > 0) {
             // If no spawnable tiles to be found, just spawn on a space.
-            return getMatchingTiles(function (tile) {
-                return tile.constructor.name === "Space";
-            });
+            return spawnableSpaces;
+        } else {
+            // If no spaces, just pick one that doesn't collide up.
+            return collidableSpaces;
         }
     }
 
