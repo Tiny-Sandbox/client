@@ -147,16 +147,16 @@ class Occupied extends Wall {
 }
 
 class Turf extends Space {
-	constructor(x, y) {
-		super(x, y);
-		this.capturedBy = null;
+    constructor(x, y) {
+        super(x, y);
+        this.capturedBy = null;
     }
-	getColor() {
-		return this.capturedBy ? this.capturedBy.color : "#FFFFFF";
+    getColor() {
+        return this.capturedBy ? this.capturedBy.color : "#FFFFFF";
     }
-	collides(d, p) {
-		this.capturedBy = p;
-		return false;
+    collides(d, p) {
+        this.capturedBy = p;
+        return false;
     }
 }
 
@@ -307,7 +307,7 @@ class CooperativePuzzleWall extends Wall {
     }
 
     collides() {
-        return getMatchingTiles(function(item) {
+        return getMatchingTiles(function (item) {
             if (item.constructor.name !== "Occupied") return false;
             return item.oldTile.constructor.name === "CooperativeSwitch";
         }).length < this.strengthNeeded;
@@ -363,6 +363,7 @@ function getMatchingTiles(callback) {
 
     return matching;
 }
+
 function getSpawnables(pid) {
     const directlySpawnable = getMatchingTiles(function (tile) {
         return tile.constructor.name === "SpawnableSpace" && (tile.restriction === pid || tile.restriction === null);
@@ -377,6 +378,7 @@ function getSpawnables(pid) {
         });
     }
 }
+
 function randItem(array) {
     return array[Math.floor(Math.random() * array.length)];
 }
