@@ -391,7 +391,7 @@ function tryActionOn(tile, direction, player) {
         }
 
         collides() {
-            return getMatchingTiles(function (item) {
+            return getMatchingTiles((item) => {
                 if (item.constructor.name !== "Occupied") return false;
                 return item.oldTile.constructor.name === "CooperativeSwitch";
             }).length < this.strengthNeeded;
