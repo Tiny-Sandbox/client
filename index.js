@@ -1,4 +1,4 @@
-(async function () {try{
+(async function () {
     /* --------------------------------------------------------------------------
         Helpful functions
     ----------------------------------------------------------------------------- */
@@ -137,15 +137,6 @@
 
             this.keys = 0;
         }
-        
-        moveTo(x, y) {
-        	const ourTile = arenaMap.getTile(this.position.x, this.position.y);
-          arenaMap.getTile(x, y).changeTo(ourTile);
-          ourTile.changeBack();
-          
-        	this.position.x = x;
-          this.position.y = y;
-        }
     }
 
     class Space {
@@ -175,6 +166,10 @@
 
         collides() {
             return false; // Spaces don't collide!! 
+        }
+        
+        afterTurn() {
+        	
         }
 
         changeBack() {
@@ -222,16 +217,24 @@
       }
       
       collides(direction, player) {
-     		if (!player) return;
-     
+        return false;
+      }
+      
+      afterTurn(player) {
       	const compatTeleports = arenaMap.getMatchingTiles(tile => {
         	return tile.constructor.name === "Teleporter" && tile.id === this.id;
         });
         const exit = randItem(compatTeleports);
-        alert(exit)
+        
+      	const pos = player.position;
+				const plTile = arenaMap.getTile(pos.x, pos.y);
+        const exitTile = arenaMap.getTile(exit.position.x, exit.position.y);
 
-      	player.moveTo(exit.x, exit.y);
-      	return false;
+        plTile.changeBack();
+        exitTile.changeTo(plTile);
+        
+        players[player.id].position.x = exit.position.x;
+        players[player.id].position.y = exit.position.y;
       }
     }
 
@@ -534,7 +537,7 @@
                     turnHasFinished = false;
                 }
                 break;
-            case 4:
+            case 4:sss
                 switch (currentPlayer.direction) {
                     case 1:
                         tryTileAction(arenaMap.getTile(currentPlayer.position.x - 1, currentPlayer.position.y), 1, currentPlayer);
@@ -553,6 +556,11 @@
             default:
                 turnHasFinished = false;
         }
+        
+        const newpl = players[currentID];
+        const newt = arenaMap.getTile(newpl.position.x, newpl.position.y).oldTile;
+        newt.afterTurn(newpl);
+        
         if (turnHasFinished && !(sandbox && event.altKey)) {
             currentTurn++;
             if (currentTurn === players.length) {
@@ -652,5 +660,5 @@
         window.requestAnimationFrame(render);
     }
 
-    window.requestAnimationFrame(render);}catch(e){alert(e.stack)}
+    window.requestAnimationFrame(render);
 })();
