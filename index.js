@@ -33,18 +33,6 @@
         };
     };
 
-    function getMatchingTiles(callback) {
-        const matches = [];
-        for (let item of arenaMap) {
-            for (let item2 of item) {
-                if (callback(item2)) {
-                    matches.push(item2)
-                }
-            }
-        }
-        return matches;
-    }
-
     function getSpawnables(pid) {
         const directlySpawnable = arenaMap.getMatchingTiles(function (tile) {
             return tile.constructor.name === "SpawnableSpace" && (tile.restriction === pid || tile.restriction === null);
