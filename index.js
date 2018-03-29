@@ -28,8 +28,6 @@
         switch (Math.round(Math.random() * rand)) {
             default:
                 return new Turf(j, i);
-            case 0:
-            		return new Teleporter("", j, i);
         };
     };
 
