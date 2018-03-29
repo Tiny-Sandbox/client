@@ -43,32 +43,14 @@
         return matches;
     }
 
-    function getTile(x, y) {
-        return arenaMap[y][x];
-    }
-
-    function getMatchingTiles(callback) {
-        const matching = [];
-
-        for (let item of arenaMap) {
-            for (let item2 of item) {
-                if (callback(item2)) {
-                    matching.push(item2)
-                }
-            }
-        }
-
-        return matching;
-    }
-
     function getSpawnables(pid) {
-        const directlySpawnable = getMatchingTiles(function (tile) {
+        const directlySpawnable = arenaMap.getMatchingTiles(function (tile) {
             return tile.constructor.name === "SpawnableSpace" && (tile.restriction === pid || tile.restriction === null);
         });
-        const spawnableSpaces = getMatchingTiles(function (tile) {
+        const spawnableSpaces = arenaMap.getMatchingTiles(function (tile) {
             return tile.constructor.name === "Space";
         });
-        const collidableSpaces = getMatchingTiles(function (tile) {
+        const collidableSpaces = arenaMap.getMatchingTiles(function (tile) {
             return !tile.collides();
         })
 
@@ -88,8 +70,8 @@
     }
 
     function generateBase(player) {
-        getTile(player.position.x, player.position.y).changeTo(new HomeSpace(player));
-        getTile(player.position.x, player.position.y).changeTo(new Occupied(player));
+        arenaMap.getTile(player.position.x, player.position.y).changeTo(new HomeSpace(player));
+        arenaMap.getTile(player.position.x, player.position.y).changeTo(new Occupied(player));
     }
 
     function getMousePos(evt) {
@@ -119,6 +101,30 @@
     function tryTileAction(tile, direction, player) {
         if (tile.doFacingAction && typeof tile.doFacingAction === "function") {
             tile.doFacingAction(direction, player);
+        }
+    }
+    
+    class TileMap {
+        constructor(twodeearray) {
+             this.map = twodeearray;
+        }
+        
+        getTile(x, y) {
+            return this.map[y][x];
+        }
+
+        getMatchingTiles(callback) {
+            const matching = [];
+
+            for (let item of this.map) {
+                for (let item2 of item) {
+                    if (callback(item2)) {
+                        matching.push(item2)
+                    }
+                }
+            }
+
+            return matching;
         }
     }
 
@@ -367,7 +373,7 @@
         }
 
         collides() {
-            return getMatchingTiles((item) => {
+            return arenaMap.getMatchingTiles((item) => {
                 if (item.constructor.name !== "Occupied") return false;
                 return item.oldTile.constructor.name === "CooperativeSwitch";
             }).length < this.strengthNeeded;
@@ -418,12 +424,13 @@
         ["Spacebar"],
     ];
 
-    const arenaMap = await makeArray(arenaWidth, arenaHeight);
+    const arenaMapNotClassYet = await makeArray(arenaWidth, arenaHeight);
+    const arenaMap = new TileMap(arenaMapNotClassYet);
 
-    getTile(0, 0).changeTo(new SpawnableSpace(null));
-    getTile(0, arenaHeight - 1).changeTo(new SpawnableSpace(null));
-    getTile(arenaWidth - 1, 0).changeTo(new SpawnableSpace(null));
-    getTile(arenaWidth - 1, arenaHeight - 1).changeTo(new SpawnableSpace(null));
+    arenaMap.getTile(0, 0).changeTo(new SpawnableSpace(null));
+    arenaMap.getTile(0, arenaHeight - 1).changeTo(new SpawnableSpace(null));
+    arenaMap.getTile(arenaWidth - 1, 0).changeTo(new SpawnableSpace(null));
+    arenaMap.getTile(arenaWidth - 1, arenaHeight - 1).changeTo(new SpawnableSpace(null));
 
     const players = [];
     for (let p = 0; p < playerCount; p++) {
@@ -435,7 +442,7 @@
         generateBase(players[p]);
     }
     
-    getMatchingTiles(tile => {
+    arenaMap.getMatchingTiles(tile => {
     	return tile.constructor.name === "SpawnableSpace";
     }).forEach(tile => {
     	tile.changeTo(generateRandomTile());
@@ -445,7 +452,7 @@
         const pos = getMousePos(event);
         mapHoverLocation = {
             coordinates: pos,
-            tile: getTile(pos.x, pos.y),
+            tile: arenaMap.getTile(pos.x, pos.y),
         };
     });
 
@@ -456,13 +463,13 @@
         const currentPlayer = cooperativeMode ? players[keyInfo.owner] : players[currentTurn];
         const currentID = currentPlayer.id;
 
-        let curTile = getTile(currentPlayer.position.x, currentPlayer.position.y);
+        let curTile = arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y);
 
         let turnHasFinished = true; // Only set to false if none of the keys with a case below were pressed or failed move.
 
         switch (keyInfo.meaning) {
             case 0:
-                const tileUp = getTile(currentPlayer.position.x, currentPlayer.position.y - 1);
+                const tileUp = arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y - 1);
 
                 players[currentID].direction = 0;
                 if (!tileUp.collides(2, currentPlayer) || (sandbox && event.shiftKey)) {
@@ -474,7 +481,7 @@
                 }
                 break;
             case 1:
-                const tileLeft = getTile(currentPlayer.position.x - 1, currentPlayer.position.y);
+                const tileLeft = arenaMap.getTile(currentPlayer.position.x - 1, currentPlayer.position.y);
                 players[currentID].direction = 1;
                 if (!tileLeft.collides(3, currentPlayer) || (sandbox && event.shiftKey)) {
                     curTile.changeBack();
@@ -485,7 +492,7 @@
                 }
                 break;
             case 2:
-                const tileDown = getTile(currentPlayer.position.x, currentPlayer.position.y + 1);
+                const tileDown = arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y + 1);
                 players[currentID].direction = 2;
                 if (!tileDown.collides(0, currentPlayer) || (sandbox && event.shiftKey)) {
                     curTile.changeBack();
@@ -496,7 +503,7 @@
                 }
                 break;
             case 3:
-                const tileRight = getTile(currentPlayer.position.x + 1, currentPlayer.position.y);
+                const tileRight = arenaMap.getTile(currentPlayer.position.x + 1, currentPlayer.position.y);
                 players[currentID].direction = 3;
                 if (!tileRight.collides(1, currentPlayer) || (sandbox && event.shiftKey)) {
                     curTile.changeBack();
@@ -509,16 +516,16 @@
             case 4:
                 switch (currentPlayer.direction) {
                     case 1:
-                        tryTileAction(getTile(currentPlayer.position.x - 1, currentPlayer.position.y), 1, currentPlayer);
+                        tryTileAction(arenaMap.getTile(currentPlayer.position.x - 1, currentPlayer.position.y), 1, currentPlayer);
                         break;
                     case 2:
-                        tryTileAction(getTile(currentPlayer.position.x, currentPlayer.position.y + 1), 2, currentPlayer);
+                        tryTileAction(arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y + 1), 2, currentPlayer);
                         break;
                     case 3:
-                        tryTileAction(getTile(currentPlayer.position.x + 1, currentPlayer.position.y), 3, currentPlayer);
+                        tryTileAction(arenaMap.getTile(currentPlayer.position.x + 1, currentPlayer.position.y), 3, currentPlayer);
                         break;
                     default:
-                        tryTileAction(getTile(currentPlayer.position.x, currentPlayer.position.y - 1), 0, currentPlayer);
+                        tryTileAction(arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y - 1), 0, currentPlayer);
                         break;
                 }
                 break;
@@ -551,7 +558,7 @@
 
         for (let y = 0; y < arenaHeight; y++) {
             for (let x = 0; x < arenaWidth; x++) {
-                const curTile = getTile(x, y);
+                const curTile = arenaMap.getTile(x, y);
                 const underTile = curTile.oldTile;
                 if (underTile) {
                     renderTile(underTile.position.x, underTile.position.y, underTile.getColor());
