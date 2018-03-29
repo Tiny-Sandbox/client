@@ -434,6 +434,12 @@
         players.push(new Player(p, playerX, playerY));
         generateBase(players[p]);
     }
+    
+    getMatchingTiles(tile => {
+    	return tile.constructor.name === "SpawnableSpace";
+    }).forEach(tile => {
+    	tile.changeTo(new Space());
+    });
 
     canvas.addEventListener("mousemove", (event) => {
         const pos = getMousePos(event);
