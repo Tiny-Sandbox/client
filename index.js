@@ -1,4 +1,4 @@
-(async function () {
+(async function () {try{
     /* --------------------------------------------------------------------------
         Helpful functions
     ----------------------------------------------------------------------------- */
@@ -28,6 +28,8 @@
         switch (Math.round(Math.random() * rand)) {
             default:
                 return new Turf(j, i);
+            case 0:
+            		return new Teleporter("", j, i);
         };
     };
 
@@ -39,7 +41,7 @@
             return tile.constructor.name === "Space";
         });
         const collidableSpaces = arenaMap.getMatchingTiles(function (tile) {
-            return !tile.collides();
+            return !tile.collides(0);
         })
 
         if (directlySpawnable.length > 0) {
@@ -135,6 +137,15 @@
 
             this.keys = 0;
         }
+        
+        moveTo(x, y) {
+        	const ourTile = arenaMap.getTile(this.position.x, this.position.y);
+          arenaMap.getTile(x, y).changeTo(ourTile);
+          ourTile.changeBack();
+          
+        	this.position.x = x;
+          this.position.y = y;
+        }
     }
 
     class Space {
@@ -200,6 +211,28 @@
         collides() {
             return true; // Walls are walls...
         }
+    }
+    
+    class Teleporter extends Space {
+    	constructor(id, x, y) {
+      	super(x, y);
+        
+        this.id = id;
+        this.color = "purple";
+      }
+      
+      collides(direction, player) {
+     		if (!player) return;
+     
+      	const compatTeleports = arenaMap.getMatchingTiles(tile => {
+        	return tile.constructor.name === "Teleporter" && tile.id === this.id;
+        });
+        const exit = randItem(compatTeleports);
+        alert(exit)
+
+      	player.moveTo(exit.x, exit.y);
+      	return false;
+      }
     }
 
     class Occupied extends Wall {
@@ -619,5 +652,5 @@
         window.requestAnimationFrame(render);
     }
 
-    window.requestAnimationFrame(render);
+    window.requestAnimationFrame(render);}catch(e){alert(e.stack)}
 })();
