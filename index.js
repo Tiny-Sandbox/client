@@ -1,6 +1,4 @@
 (async function () {
-    alert("Some things may break");
-    
     /* --------------------------------------------------------------------------
         Helpful functions
     ----------------------------------------------------------------------------- */
@@ -161,7 +159,7 @@
             newSpace.position.y = this.position.y;
             newSpace.oldTile = this;
             newSpace.occupying = this.constructor.name;
-            arenaMap[this.position.y][this.position.x] = newSpace;
+            arenaMap.map[this.position.y][this.position.x] = newSpace;
         }
 
         collides() {
