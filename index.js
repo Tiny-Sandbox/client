@@ -438,8 +438,7 @@
     getMatchingTiles(tile => {
     	return tile.constructor.name === "SpawnableSpace";
     }).forEach(tile => {
-        alert(tile);
-    	tile.changeTo(new Space());
+    	tile.changeTo(generateRandomTile());
     });
 
     canvas.addEventListener("mousemove", (event) => {
