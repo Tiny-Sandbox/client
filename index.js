@@ -27,7 +27,7 @@
     function generateRandomTile(rand) {
         switch (Math.round(Math.random() * rand)) {
             default:
-                return new Turf(j, i);
+                return new Turf(true, j, i);
         };
     };
 
@@ -252,15 +252,16 @@
     }
 
     class Turf extends Space {
-        constructor(x, y) {
+        constructor(recapturable, x, y) {
             super(x, y);
             this.capturedBy = null;
+            this.recapturable = recapturable;
         }
         getColor() {
             return this.capturedBy ? this.capturedBy.color : "#FFFFFF";
         }
         collides(d, p) {
-            this.capturedBy = p;
+            this.capturedBy = this.recapturable || !this.capturedBy ? p : this.capturedBy;
             return false;
         }
     }
