@@ -1,4 +1,4 @@
-(async function () {
+(async function () {try{
     /* --------------------------------------------------------------------------
         Helpful functions
     ----------------------------------------------------------------------------- */
@@ -273,6 +273,8 @@
             return this.capturedBy ? this.capturedBy.color : "#FFFFFF";
         }
         collides(d, p) {
+					if (!p) return;
+				
             if ((this.recaptures >= this.captureCount || !this.capturedBy) && p.id !== this.capturedBy.id) {
             this.capturedBy = p;
             this.captureCount++;
@@ -682,5 +684,5 @@
         window.requestAnimationFrame(render);
     }
 
-    window.requestAnimationFrame(render);
+    window.requestAnimationFrame(render);}catch(e){alert(e.stack)}
 })();
