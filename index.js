@@ -114,6 +114,17 @@
 
             return matching;
         }
+        
+        getSize() {
+        	const height = this.map.length;
+          const length = this.map[0].length;
+        
+        	return {
+          	height: height,
+            length: length,
+            area: height * length,
+          };
+        }
     }
 
     /* --------------------------------------------------------------------------
