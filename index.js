@@ -273,11 +273,9 @@
             return this.capturedBy ? this.capturedBy.color : "#FFFFFF";
         }
         collides(d, p) {
-					if (!p) return;
-				
-            if ((this.recaptures >= this.captureCount || !this.capturedBy) && p.id !== this.capturedBy.id) {
-            this.capturedBy = p;
-            this.captureCount++;
+            if ((this.recaptures >= this.captureCount || !this.capturedBy)) {
+            	this.capturedBy = p;
+            	this.captureCount++;
             }
             
             return false;
