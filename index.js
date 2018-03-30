@@ -284,7 +284,6 @@
         constructor(owner, x, y) {
             super(x, y);
             this.owner = owner;
-            this.color = this.owner.color;
         }
 
         collides(direction, player) {
@@ -292,7 +291,7 @@
         }
 
         getColor() {
-            return this.color = this.owner.color;
+            return this.owner.color;
         }
 
         toString() {
