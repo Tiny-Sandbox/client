@@ -278,6 +278,14 @@
             
             return false;
         }
+        
+        toString() {
+        	if (this.capturedBy) {
+          	return `Player ${this.capturedBy.id + 1}'s turf`;
+          } else {
+          	return this.constructor.name;
+          }
+        }
     }
 
     class HomeSpace extends Wall {
