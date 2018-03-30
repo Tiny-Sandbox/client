@@ -27,7 +27,11 @@
     function generateRandomTile(rand) {
         switch (Math.round(Math.random() * rand)) {
             default:
-                return new Turf(1, j, i);
+                return new PowerTurf(1, j, i);
+            case 1:
+            		return new PowerSource(j, i);
+            case 2:
+            		return new PowerIndicator(j, i);
         };
     };
 
@@ -164,6 +168,10 @@
         getColor() {
             return this.color;
         }
+        
+        isPowered() {
+        	return false;
+        }
 
         changeTo(newSpace) {
             newSpace.position.x = this.position.x;
@@ -194,6 +202,36 @@
             return this.constructor.name;
         }
     }
+    
+    function neighbor(tile, dirTo) {
+    	const x = tile.position.x;
+      const y = tile.position.y;
+    
+    	try {
+        switch (dirTo) {
+          case 3:
+            return arenaMap.getTile(x + 1, y);
+          case 2:
+            return arenaMap.getTile(x, y + 1);
+          case 1:
+            return arenaMap.getTile(x - 1, y);
+          default:
+            return arenaMap.getTile(x, y - 1);
+        };
+      } catch (error) {
+      	false
+      }
+    }
+    
+    function neighborPowered(tile) {
+			// ew this code
+    	const powers0 = neighbor(tile, 0).isPowered();
+    	const powers1 = neighbor(tile, 1).isPowered();
+    	const powers2 = neighbor(tile, 2).isPowered();
+    	const powers3 = neighbor(tile, 3).isPowered();
+    
+    	return powers0 || powers1 || powers2 || powers3;
+    }
 
     class SpawnableSpace extends Space {
         constructor(restrictedTo, x, y) {
@@ -216,6 +254,34 @@
             return true; // Walls are walls...
         }
     }
+    
+    class PowerSource extends Wall {
+    	constructor(x, y) {
+      	super(x, y);
+      }
+      
+      getColor() {
+      	return "red";
+      }
+      
+      isPowered() {
+      	return true;
+      }
+    }
+    
+    class PowerIndicator extends Wall {
+    	constructor(x, y) {
+      	super(x, y);
+      }
+      
+      getColor() {
+      	return neighborPowered(this) ? "yellow" : "mocha";
+      }
+    }
+    
+    class PowerCarrier extends Space {}
+    
+    class PowerCarrierWall extends Wall {}
     
     class Teleporter extends Space {
     	constructor(id, x, y) {
@@ -288,6 +354,16 @@
           	return this.constructor.name;
           }
         }
+    }
+    
+    class PowerTurf extends Turf {
+    	constructor(recaptures, x, y) {
+      	super(recaptures, x, y);
+      }
+      
+      isPowered() {
+      	return this.capturedBy && neighborPowered(this);
+      }
     }
 
     class HomeSpace extends Wall {
