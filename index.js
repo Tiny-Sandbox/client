@@ -273,8 +273,10 @@
             return this.capturedBy ? this.capturedBy.color : "#FFFFFF";
         }
         collides(d, p) {
-            this.capturedBy = this.recaptures >= this.captureCount || !this.capturedBy ? p : this.capturedBy;
+            if ((this.recaptures >= this.captureCount || !this.capturedBy) && p.id !== this.capturedBy.id) {
+            this.capturedBy = p;
             this.captureCount++;
+            }
             
             return false;
         }
