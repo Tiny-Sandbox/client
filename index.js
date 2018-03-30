@@ -219,18 +219,20 @@
             return arenaMap.getTile(x, y - 1);
         };
       } catch (error) {
-      	false
+      	return false;
       }
     }
     
     function neighborPowered(tile) {
-			// ew this code
-    	const powers0 = neighbor(tile, 0).isPowered();
-    	const powers1 = neighbor(tile, 1).isPowered();
-    	const powers2 = neighbor(tile, 2).isPowered();
-    	const powers3 = neighbor(tile, 3).isPowered();
+			const neighbors = [];
+      for (let loop = 0; loop < 4; loop++) {
+      	const neighborWeAreOn = neighbor(tile, loop);
+        if (neighborWeAreOn) {
+        	neighbors.push(neighborWeAreOn);
+        }
+      }
     
-    	return powers0 || powers1 || powers2 || powers3;
+    	return neighbors.some(tile => tile.isPowered());
     }
 
     class SpawnableSpace extends Space {
