@@ -1,4 +1,4 @@
-(async function () {
+(async function() {
 	try {
 		/* --------------------------------------------------------------------------
 		    Helpful functions
@@ -7,10 +7,10 @@
 		// derived from https://stackoverflow.com/a/901144
 		function param(name, url = window.location.href) {
 			name = name.replace(/[\[\]]/g, "\\$&");
-			var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+			let regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
 				results = regex.exec(url);
 			if (!results) return null;
-			if (!results[2]) return '';
+			if (!results[2]) return "";
 			return decodeURIComponent(results[2].replace(/\+/g, " "));
 		}
 
@@ -27,24 +27,24 @@
 
 		function generateRandomTile(rand) {
 			switch (Math.round(Math.random() * rand)) {
-				default: return new PowerTurf(1, j, i);
+			default: return new PowerTurf(1, j, i);
 			case 1:
-					return new PowerSource(j, i);
+				return new PowerSource(j, i);
 			case 2:
-					return new PowerIndicator(j, i);
-			};
-		};
+				return new PowerIndicator(j, i);
+			}
+		}
 
 		function getSpawnables(pid) {
-			const directlySpawnable = arenaMap.getMatchingTiles(function (tile) {
+			const directlySpawnable = arenaMap.getMatchingTiles(function(tile) {
 				return tile.constructor.name === "SpawnableSpace" && (tile.restriction === pid || tile.restriction === null);
 			});
-			const spawnableSpaces = arenaMap.getMatchingTiles(function (tile) {
+			const spawnableSpaces = arenaMap.getMatchingTiles(function(tile) {
 				return tile.constructor.name === "Space";
 			});
-			const collidableSpaces = arenaMap.getMatchingTiles(function (tile) {
+			const collidableSpaces = arenaMap.getMatchingTiles(function(tile) {
 				return !tile.collides(0);
-			})
+			});
 
 			if (directlySpawnable.length > 0) {
 				return directlySpawnable;
@@ -67,19 +67,19 @@
 		}
 
 		function getMousePos(evt) {
-			var rect = canvas.getBoundingClientRect(), // abs. size of element
+			let rect = canvas.getBoundingClientRect(), // abs. size of element
 				scaleX = canvas.width / rect.width, // relationship bitmap vs. element for X
 				scaleY = canvas.height / rect.height; // relationship bitmap vs. element for Y
 
 			return {
 				x: Math.floor((evt.clientX - rect.left) * scaleX / tileDensity), // scale mouse coordinates after they have
-				y: Math.floor((evt.clientY - rect.top) * scaleY / tileDensity) // been adjusted to be relative to element
-			}
+				y: Math.floor((evt.clientY - rect.top) * scaleY / tileDensity), // been adjusted to be relative to element
+			};
 		}
 
 		function makeArray(w, h) {
 			return new Promise(resolve => {
-				var arr = [];
+				const arr = [];
 				for (i = 0; i < h; i++) {
 					arr[i] = [];
 					for (j = 0; j < w; j++) {
@@ -108,10 +108,10 @@
 			getMatchingTiles(callback) {
 				const matching = [];
 
-				for (let item of this.map) {
-					for (let item2 of item) {
+				for (const item of this.map) {
+					for (const item2 of item) {
 						if (callback(item2)) {
-							matching.push(item2)
+							matching.push(item2);
 						}
 					}
 				}
@@ -182,7 +182,7 @@
 			}
 
 			collides() {
-				return false; // Spaces don't collide!! 
+				return false; // Spaces don't collide!!
 			}
 
 			afterTurn() {
@@ -217,7 +217,7 @@
 					return arenaMap.getTile(x - 1, y);
 				default:
 					return arenaMap.getTile(x, y - 1);
-				};
+				}
 			} catch (error) {
 				return false;
 			}
@@ -540,7 +540,7 @@
 		const sandbox = param("sandbox") != true;
 		const cooperativeMode = param("coop") != true;
 
-		let inputs = [
+		const inputs = [
 			["KeyW", "KeyI", "ArrowUp"],
 			["KeyA", "KeyJ", "ArrowLeft"],
 			["KeyS", "KeyK", "ArrowDown"],
@@ -587,7 +587,7 @@
 			const currentPlayer = cooperativeMode ? players[keyInfo.owner] : players[currentTurn];
 			const currentID = currentPlayer.id;
 
-			let curTile = arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y);
+			const curTile = arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y);
 
 			let turnHasFinished = true; // Only set to false if none of the keys with a case below were pressed or failed move.
 
@@ -638,7 +638,7 @@
 				}
 				break;
 			case 4:
-				sss
+				sss;
 				switch (currentPlayer.direction) {
 				case 1:
 					tryTileAction(arenaMap.getTile(currentPlayer.position.x - 1, currentPlayer.position.y), 1, currentPlayer);
@@ -731,7 +731,7 @@
 				cooperativeMode ? "Work together to do things." : "Each player takes turns moving.",
 				"You can only move to tiles that are white (empty spaces).",
 				"There is no objective yet.",
-				"Have fun!"
+				"Have fun!",
 			];
 
 			text.forEach((value, index) => {
@@ -763,6 +763,6 @@
 
 		window.requestAnimationFrame(render);
 	} catch (e) {
-		alert(e.stack)
+		alert(e.stack);
 	}
 })();
