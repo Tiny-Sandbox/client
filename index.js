@@ -27,8 +27,7 @@
 
 		function generateRandomTile(rand, x, y) {
 			switch (Math.round(Math.random() * rand)) {
-			default:
-				return new PowerTurf(1, x, y);
+			default: return new PowerTurf(1, x, y);
 			}
 		}
 
@@ -587,7 +586,8 @@
 			let turnHasFinished = true;
 
 			switch (keyInfo.meaning) {
-			case 0: {
+			case 0:
+			{
 				const tileUp = arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y - 1);
 
 				players[currentID].direction = 0;
@@ -600,7 +600,8 @@
 				}
 				break;
 			}
-			case 1: {
+			case 1:
+			{
 				const tileLeft = arenaMap.getTile(currentPlayer.position.x - 1, currentPlayer.position.y);
 				players[currentID].direction = 1;
 				if (!tileLeft.collides(3, currentPlayer) || (sandbox && event.shiftKey)) {
@@ -612,7 +613,8 @@
 				}
 				break;
 			}
-			case 2: {
+			case 2:
+			{
 				const tileDown = arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y + 1);
 				players[currentID].direction = 2;
 				if (!tileDown.collides(0, currentPlayer) || (sandbox && event.shiftKey)) {
@@ -624,7 +626,8 @@
 				}
 				break;
 			}
-			case 3: {
+			case 3:
+			{
 				const tileRight = arenaMap.getTile(currentPlayer.position.x + 1, currentPlayer.position.y);
 				players[currentID].direction = 3;
 				if (!tileRight.collides(1, currentPlayer) || (sandbox && event.shiftKey)) {
@@ -636,7 +639,8 @@
 				}
 				break;
 			}
-			case 4: {
+			case 4:
+			{
 				switch (currentPlayer.direction) {
 				case 1:
 					tryTileAction(arenaMap.getTile(currentPlayer.position.x - 1, currentPlayer.position.y), 1, currentPlayer);
