@@ -6,8 +6,9 @@
 	// derived from https://stackoverflow.com/a/901144
 	function param(name, url = window.location.href) {
 		name = name.replace(/[\[\]]/g, "\\$&");
-		let regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-			results = regex.exec(url);
+		const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
+		const results = regex.exec(url);
+
 		if (!results) return null;
 		if (!results[2]) return "";
 		return decodeURIComponent(results[2].replace(/\+/g, " "));
@@ -47,20 +48,6 @@
 		return arenaMap[y][x];
 	}
 
-	function getMatchingTiles(callback) {
-		const matching = [];
-
-		for (const item of arenaMap) {
-			for (const item2 of item) {
-				if (callback(item2)) {
-					matching.push(item2);
-				}
-			}
-		}
-
-		return matching;
-	}
-
 	function getSpawnables(pid) {
 		const directlySpawnable = getMatchingTiles(function(tile) {
 			return tile.constructor.name === "SpawnableSpace" && (tile.restriction === pid || tile.restriction === null);
@@ -93,22 +80,22 @@
 	}
 
 	function getMousePos(evt) {
-		let rect = canvas.getBoundingClientRect(), // abs. size of element
-			scaleX = canvas.width / rect.width, // relationship bitmap vs. element for X
-			scaleY = canvas.height / rect.height; // relationship bitmap vs. element for Y
+		const rect = canvas.getBoundingClientRect();
+		const scaleX = canvas.width / rect.width;
+		const scaleY = canvas.height / rect.height;
 
 		return {
-			x: Math.floor((evt.clientX - rect.left) * scaleX / tileDensity), // scale mouse coordinates after they have
-			y: Math.floor((evt.clientY - rect.top) * scaleY / tileDensity), // been adjusted to be relative to element
+			x: Math.floor((evt.clientX - rect.left) * scaleX / tileDensity),
+			y: Math.floor((evt.clientY - rect.top) * scaleY / tileDensity),
 		};
 	}
 
 	function makeArray(w, h) {
 		return new Promise(resolve => {
 			const arr = [];
-			for (i = 0; i < h; i++) {
+			for (let i = 0; i < h; i++) {
 				arr[i] = [];
-				for (j = 0; j < w; j++) {
+				for (let j = 0; j < w; j++) {
 					arr[i][j] = generateRandomTile(20);
 				}
 			}
@@ -193,7 +180,7 @@
 		}
 
 		toString() {
-			return `Spawn space`;
+			return "Spawn space";
 		}
 	}
 
@@ -320,7 +307,7 @@
 			return this.closed;
 		}
 
-		doFacingAction(direction, player) {
+		doFacingAction() {
 			this.closed = !this.closed;
 		}
 
@@ -374,7 +361,7 @@
 		}
 
 		toString() {
-			return `Cooperative wall`;
+			return "Cooperative wall";
 		}
 	}
 
@@ -443,8 +430,6 @@
 		};
 	});
 
-	const totalKeys = null; // fix this once I am able to get access to the get tiles that match callback
-
 	window.addEventListener("keydown", (event) => {
 		const keyInfo = findKeyMeaning(event.code);
 		const currentPlayer = cooperativeMode ? players[keyInfo.owner] : players[currentTurn];
@@ -452,7 +437,7 @@
 
 		const curTile = getTile(currentPlayer.position.x, currentPlayer.position.y);
 
-		let turnHasFinished = true; // Only set to false if none of the keys with a case below were pressed or failed move.
+		let turnHasFinished = true;
 
 		switch (keyInfo.meaning) {
 		case 0:
