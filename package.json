@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "browserify index.js -o bundle.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/haykam821/Battle-Arena/issues"
   },
-  "homepage": "https://github.com/haykam821/Battle-Arena#readme"
+  "homepage": "https://github.com/haykam821/Battle-Arena#readme",
+  "devDependencies": {
+    "browserify": "^16.1.1"
+  }
 }
