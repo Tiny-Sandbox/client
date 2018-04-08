@@ -1,3 +1,8 @@
+const chroma = require("chroma-js");
+function lighten(hex) {
+	return chroma(hex).brighten().hex();
+}
+
 (async function() {
 	try {
 		/* --------------------------------------------------------------------------
@@ -334,7 +339,7 @@
 				this.captureCount = 0;
 			}
 			getColor() {
-				return this.capturedBy ? this.capturedBy.color : "#FFFFFF";
+				return this.capturedBy ? lighten(this.capturedBy.color) : "#FFFFFF";
 			}
 			collides(d, p) {
 				if ((this.recaptures >= this.captureCount || !this.capturedBy)) {
