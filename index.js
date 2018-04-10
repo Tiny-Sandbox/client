@@ -268,6 +268,10 @@
 				return true;
 			}
 		}
+		
+		function indicatorColor(expression) {
+			return expression ? "yellow" : "mocha";
+		}
 
 		class PowerIndicator extends Wall {
 			constructor(x, y) {
@@ -275,7 +279,7 @@
 			}
 
 			getColor() {
-				return neighborPowered(this) ? "yellow" : "mocha";
+				return indicatorColor(neighborPowered(this));
 			}
 		}
 		
@@ -286,7 +290,7 @@
 			}
 			
 			getColor() {
-				return Math.round(performance.now() / this.flashTiming) % 2 ? "yellow" : "mocha";
+				return indicatorColor(Math.round(performance.now() / this.flashTiming) % 2);
 			}
 		}
 
