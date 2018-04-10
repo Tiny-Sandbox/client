@@ -382,6 +382,14 @@
 			isPowered() {
 				return this.capturedBy && neighborPowered(this);
 			}
+      
+      toString() {
+				if (this.capturedBy) {
+					return `Player ${this.capturedBy.id + 1}'s power-connecting turf`;
+				} else {
+					return "Power-connecting turf";
+				}
+			}
 		}
 
 		class HomeSpace extends Wall {
