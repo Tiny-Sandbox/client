@@ -350,8 +350,11 @@
 				this.recaptures = recaptures;
 				this.captureCount = 0;
 			}
-			getColor() {
-				return this.capturedBy ? this.capturedBy.color : "#FFFFFF";
+			getRendering() {
+				return {
+        	type: "color",
+          color: this.capturedBy ? this.capturedBy.color : "#FFFFFF",
+        }
 			}
 			collides(d, p) {
 				if ((this.recaptures >= this.captureCount || !this.capturedBy)) {
@@ -391,8 +394,11 @@
 				return player.id !== this.owner.id;
 			}
 
-			getColor() {
-				return this.owner.color;
+			getRendering() {
+				return {
+        	type: "color",
+          color: this.owner.color,
+        };
 			}
 
 			toString() {
@@ -689,14 +695,30 @@
 				}
 			}
 		});
+    
+    function renderSquare(x, y, color) {
+    	ctx.fillStyle = color;
+      ctx.fillRect(x * tileDensity, y * tileDensity, tileDensity, tileDensity);
+    }
 
-		function renderTile(x = 0, y = 0, fillStyle = "white") {
-			const oldStyle = ctx.fillStyle;
-			ctx.fillStyle = fillStyle;
-
-			ctx.fillRect(x * tileDensity, y * tileDensity, tileDensity, tileDensity);
-
-			ctx.fillStyle = oldStyle;
+		function renderTile(tile) {
+    	const oldStyle = ctx.fillStyle;
+    	const x = tile.position.x;
+      const y = tile.position.y;
+      
+      if (tile.getRendering) {
+        const rendering = tile.getRendering();
+        switch (rendering.type) {
+        	case "color": {
+        		renderSquare(x, y, rendering.color);
+          }
+        }
+      } else {
+      	// Allow defunct getColor until transition is complete
+        renderSquare(x, y, tile.getColor());
+      }
+      
+      ctx.fillStyle = oldStyle;
 			return;
 		}
 
@@ -711,9 +733,9 @@
 					const curTile = arenaMap.getTile(x, y);
 					const underTile = curTile.oldTile;
 					if (underTile) {
-						renderTile(underTile.position.x, underTile.position.y, underTile.getColor());
+						renderTile(underTile);
 					}
-					renderTile(curTile.position.x, curTile.position.y, curTile.getColor());
+					renderTile(curTile);
 				}
 			}
 
