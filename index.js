@@ -27,6 +27,8 @@
 
 		function generateRandomTile(rand, x, y) {
 			switch (Math.round(Math.random() * rand)) {
+				case 5:
+					return new FlashingIndicator(x, y);
 			default: return new PowerTurf(1, x, y);
 			}
 		}
@@ -274,6 +276,17 @@
 
 			getColor() {
 				return neighborPowered(this) ? "yellow" : "mocha";
+			}
+		}
+		
+		class FlashingIndicator extends Wall {
+			constructor(x, y, flashTiming = 1000) {
+				super(x, y);
+				this.flashTiming = flashTiming;
+			}
+			
+			getColor() {
+				return Math.round(performance.now() / this.flashTiming) % 2 ? "yellow" : "mocha";
 			}
 		}
 
