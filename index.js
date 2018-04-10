@@ -1,3 +1,6 @@
+const indOn = new Image();
+indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_lamp_.jpg/revision/latest?cb=20150826232718";
+
 (async function() {
 	try {
 		/* --------------------------------------------------------------------------
@@ -269,8 +272,14 @@
 			}
 		}
 		
-		function indicatorColor(expression) {
-			return expression ? "yellow" : "#4b3621";
+		function indicatorRendering(expression) {
+			return expression ? {
+      	type: "image",
+        image: indOn,
+      } : {
+      	type: "color",
+        color: "#4b3621",
+      };
 		}
 
 		class PowerIndicator extends Wall {
@@ -278,8 +287,8 @@
 				super(x, y);
 			}
 
-			getColor() {
-				return indicatorColor(neighborPowered(this));
+			getRendering() {
+				return indicatorRendering(neighborPowered(this));
 			}
 		}
 		
@@ -289,8 +298,8 @@
 				this.flashTiming = flashTiming;
 			}
 			
-			getColor() {
-				return indicatorColor(Math.round(performance.now() / this.flashTiming) % 2);
+			getRendering() {
+				return indicatorRendering(Math.round(performance.now() / this.flashTiming) % 2);
 			}
 		}
 
@@ -719,6 +728,10 @@
         switch (rendering.type) {
         	case "color": {
         		renderSquare(x, y, rendering.color);
+            break;
+          }
+          case "image": {
+          	ctx.drawImage(rendering.image, x * tileDensity, y * tileDensity, tileDensity, tileDensity);
           }
         }
       } else {
