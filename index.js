@@ -557,8 +557,13 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 		const hctx = hud.getContext("2d");
 
 		let mapHoverLocation = {};
+    
+    let currentTurn = 0;
+		const playerCount = param("players") || 2;
+		const sandbox = param("sandbox") != true;
+		const cooperativeMode = param("coop") != true;
 
-		const arenaWidth = Math.ceil(Math.random() * 20);
+		const arenaWidth = Math.ceil(Math.random() * 300 + playerCount);
 		const arenaHeight = arenaWidth;
 
 		const tileDensity = 16;
@@ -570,11 +575,6 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 
 		canvas.style.width = window.innerWidth * 0.80 + "px";
 		canvas.style.height = window.innerHeight * 0.80 + "px";
-
-		let currentTurn = 0;
-		const playerCount = param("players") || 2;
-		const sandbox = param("sandbox") != true;
-		const cooperativeMode = param("coop") != true;
 
 		const inputs = [
 			["KeyW", "KeyI", "ArrowUp"],
