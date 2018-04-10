@@ -563,7 +563,7 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 		const sandbox = param("sandbox") != true;
 		const cooperativeMode = param("coop") != true;
 
-		const arenaWidth = Math.ceil(Math.random() * 300 + playerCount);
+		const arenaWidth = Math.ceil(Math.random() * 15 + playerCount);
 		const arenaHeight = arenaWidth;
 
 		const tileDensity = 16;
