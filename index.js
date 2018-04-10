@@ -270,7 +270,7 @@
 		}
 		
 		function indicatorColor(expression) {
-			return expression ? "yellow" : "mocha";
+			return expression ? "yellow" : "#4b3621";
 		}
 
 		class PowerIndicator extends Wall {
