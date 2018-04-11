@@ -627,13 +627,18 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 
 		canvas.addEventListener("mousemove", (event) => {
 			const pos = getMousePos(event);
+			
+			const tile = arenaMap.getTile(pos.x, pos.y);
+			const tileActual = event.shiftKey ? tile.oldTile : tile;
 			mapHoverLocation = {
 				coordinates: pos,
-				tile: arenaMap.getTile(pos.x, pos.y),
+				tile: tileActual,
+				frontTile: tile,
+				oldTile: tile.oldTile,
 			};
 		});
 		canvas.addEventListener("mousedown", event => {
-			mapHoverLocation.tile.changeTo(generateRandomTile(mapHoverLocation.tile.position.x, mapHoverLocation.tile.position.y));
+			mapHoverLocation.frontTile.changeTo(generateRandomTile(mapHoverLocation.frontTile.position.x, mapHoverLocation.frontTile.position.y));
 		});
 
 		window.addEventListener("keydown", (event) => {
