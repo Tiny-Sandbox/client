@@ -31,7 +31,7 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 		function generateRandomTile(rand, x, y) {
 			switch (Math.round(Math.random() * rand)) {
 				case 5:
-					return new FlashingIndicator(x, y);
+					return new FlashingIndicator(x, y, Math.random() * 3000);
 			default: return new PowerTurf(1, x, y);
 			}
 		}
