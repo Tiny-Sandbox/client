@@ -165,6 +165,10 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 				this.oldTile = null;
 				this.occupying = null;
 			}
+			
+			isPowered() {
+				return false;
+			}
 
 			getColor() {
 				return this.color;
@@ -230,11 +234,7 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 			}
 
 			return neighbors.some(oneTile => {
-				if (oneTile.isPowered) {
-					return oneTile.isPowered();
-				} else {
-					return false; // default to unpowered
-				}
+				return oneTile.isPowered();
 			});
 		}
 
