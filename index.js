@@ -170,8 +170,11 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 				return false;
 			}
 
-			getColor() {
-				return this.color;
+			getRendering() {
+				return {
+					type: "color",
+					color: this.color,
+				};
 			}
 
 			changeTo(newSpace) {
