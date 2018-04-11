@@ -361,8 +361,11 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 				this.occupiedBy = player;
 			}
 
-			getColor() {
-				return this.occupiedBy.color;
+			getRendering() {
+				return {
+					type: "color",
+					color: this.occupiedBy.color,
+				};
 			}
 
 			toString() {
