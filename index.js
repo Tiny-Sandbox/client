@@ -262,6 +262,19 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 				return true;
 			}
 		}
+		
+		class ColoredWall extends Wall {
+			constructor(color, x, y) {
+				super(x, y);
+				this.color = color;
+			}
+			changeColor(newColor) {
+				this.color = newColor;
+			}
+			toString() {
+				return `Wall colored ${this.color}`;
+			}
+		}
 
 		class PowerSource extends Wall {
 			constructor(x, y) {
