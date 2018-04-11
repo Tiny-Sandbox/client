@@ -635,6 +635,7 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 				tile: tileActual,
 				frontTile: tile,
 				oldTile: tile.oldTile,
+				isOldTile: event.shiftKey,
 			};
 		});
 		canvas.addEventListener("mousedown", event => {
@@ -832,7 +833,7 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 				hctx.textAlign = "right";
 				hctx.textBaseline = "middle";
 
-				if (mapHoverLocation.oldTile && mapHoverLocation.tile.toString()) {
+				if (mapHoverLocation.isOldTile && mapHoverLocation.tile && mapHoverLocation.tile.toString()) {
 					hctx.fillText(mapHoverLocation.tile.toString(), hud.width - 12, hud.height - 12);
 					hctx.fillText(`(${crds.x}, ${crds.y})`, hud.width - 12, hud.height - 24);
 				} else {
