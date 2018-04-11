@@ -170,10 +170,6 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 				return this.color;
 			}
 
-			isPowered() {
-				return false;
-			}
-
 			changeTo(newSpace) {
 				newSpace.position.x = this.position.x;
 				newSpace.position.y = this.position.y;
@@ -233,7 +229,13 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 				}
 			}
 
-			return neighbors.some(oneTile => oneTile.isPowered());
+			return neighbors.some(oneTile => {
+				if (oneTile.isPowered) {
+					return oneTile.isPowered();
+				} else {
+					return false; // default to unpowered
+				}
+			});
 		}
 
 		class SpawnableSpace extends Space {
