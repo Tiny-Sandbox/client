@@ -28,12 +28,8 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 			}
 		}
 
-		function generateRandomTile(rand, x, y) {
-			switch (Math.round(Math.random() * rand)) {
-				case 5:
-					return new FlashingIndicator(x, y, Math.round(Math.random() / 2) * 10);
-			default: return new PowerTurf(1, x, y);
-			}
+		function generateRandomTile(x, y) {
+			return new Space();
 		}
 
 		function getSpawnables(pid) {
@@ -84,7 +80,7 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 				for (let i = 0; i < h; i++) {
 					arr[i] = [];
 					for (let j = 0; j < w; j++) {
-						arr[i][j] = generateRandomTile(20, j, i);
+						arr[i][j] = generateRandomTile(j, i);
 					}
 				}
 				resolve(arr);
