@@ -29,7 +29,7 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 		}
 
 		function generateRandomTile(x, y) {
-			return new Space();
+			return new Space(x, y);
 		}
 
 		function getSpawnables(pid) {
