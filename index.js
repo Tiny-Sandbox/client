@@ -636,6 +636,9 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 				tile: arenaMap.getTile(pos.x, pos.y),
 			};
 		});
+		canvas.addEventListener("mousedown", event => {
+			mapHoverLocation.tile.changeTo(generateRandomTile(mapHoverLocation.tile.position.x, mapHoverLocation.tile.position.y));
+		});
 
 		window.addEventListener("keydown", (event) => {
 			const keyInfo = findKeyMeaning(event.code);
