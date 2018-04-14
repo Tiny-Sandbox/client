@@ -2,6 +2,8 @@ const chroma = require("chroma-js");
 function lighten(hex) {
 	return chroma(hex).brighten().hex();
 }
+const indOn = new Image();
+indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_lamp_.jpg/revision/latest?cb=20150826232718";
 
 (async function() {
 	try {
@@ -30,10 +32,8 @@ function lighten(hex) {
 			}
 		}
 
-		function generateRandomTile(rand, x, y) {
-			switch (Math.round(Math.random() * rand)) {
-			default: return new PowerTurf(1, x, y);
-			}
+		function generateRandomTile(x, y) {
+			return new Space(x, y);
 		}
 
 		function getSpawnables(pid) {
@@ -84,7 +84,7 @@ function lighten(hex) {
 				for (let i = 0; i < h; i++) {
 					arr[i] = [];
 					for (let j = 0; j < w; j++) {
-						arr[i][j] = generateRandomTile(20, j, i);
+						arr[i][j] = generateRandomTile(j, i);
 					}
 				}
 				resolve(arr);
@@ -166,12 +166,15 @@ function lighten(hex) {
 				this.occupying = null;
 			}
 
-			getColor() {
-				return this.color;
-			}
-
 			isPowered() {
 				return false;
+			}
+
+			getRendering() {
+				return {
+					type: "color",
+					color: this.color,
+				};
 			}
 
 			changeTo(newSpace) {
@@ -233,7 +236,9 @@ function lighten(hex) {
 				}
 			}
 
-			return neighbors.some(oneTile => oneTile.isPowered());
+			return neighbors.some(oneTile => {
+				return oneTile.isPowered();
+			});
 		}
 
 		class SpawnableSpace extends Space {
@@ -258,6 +263,19 @@ function lighten(hex) {
 			}
 		}
 
+		class ColoredWall extends Wall {
+			constructor(color, x, y) {
+				super(x, y);
+				this.color = color;
+			}
+			changeColor(newColor) {
+				this.color = newColor;
+			}
+			toString() {
+				return `Wall colored ${this.color}`;
+			}
+		}
+
 		class PowerSource extends Wall {
 			constructor(x, y) {
 				super(x, y);
@@ -272,13 +290,34 @@ function lighten(hex) {
 			}
 		}
 
+		function indicatorRendering(expression) {
+			return expression ? {
+      	type: "image",
+				image: indOn,
+			} : {
+      	type: "color",
+				color: "#4b3621",
+			};
+		}
+
 		class PowerIndicator extends Wall {
 			constructor(x, y) {
 				super(x, y);
 			}
 
-			getColor() {
-				return neighborPowered(this) ? "yellow" : "mocha";
+			getRendering() {
+				return indicatorRendering(neighborPowered(this));
+			}
+		}
+
+		class FlashingIndicator extends Wall {
+			constructor(x, y, flashTiming = 1000) {
+				super(x, y);
+				this.flashTiming = flashTiming;
+			}
+
+			getRendering() {
+				return indicatorRendering(Math.round(performance.now() / this.flashTiming) % 2);
 			}
 		}
 
@@ -322,8 +361,11 @@ function lighten(hex) {
 				this.occupiedBy = player;
 			}
 
-			getColor() {
-				return this.occupiedBy.color;
+			getRendering() {
+				return {
+					type: "color",
+					color: this.occupiedBy.color,
+				};
 			}
 
 			toString() {
@@ -338,8 +380,11 @@ function lighten(hex) {
 				this.recaptures = recaptures;
 				this.captureCount = 0;
 			}
-			getColor() {
-				return this.capturedBy ? lighten(this.capturedBy.color) : "#FFFFFF";
+			getRendering() {
+				return {
+        	type: "color",
+					color: this.capturedBy ? lighten(this.capturedBy.color) : "#FFFFFF",
+				};
 			}
 			collides(d, p) {
 				if ((this.recaptures >= this.captureCount || !this.capturedBy)) {
@@ -367,6 +412,14 @@ function lighten(hex) {
 			isPowered() {
 				return this.capturedBy && neighborPowered(this);
 			}
+
+			toString() {
+				if (this.capturedBy) {
+					return `Player ${this.capturedBy.id + 1}'s power-connecting turf`;
+				} else {
+					return "Power-connecting turf";
+				}
+			}
 		}
 
 		class HomeSpace extends Wall {
@@ -379,8 +432,11 @@ function lighten(hex) {
 				return player.id !== this.owner.id;
 			}
 
-			getColor() {
-				return this.owner.color;
+			getRendering() {
+				return {
+        	type: "color",
+					color: this.owner.color,
+				};
 			}
 
 			toString() {
@@ -523,7 +579,12 @@ function lighten(hex) {
 
 		let mapHoverLocation = {};
 
-		const arenaWidth = Math.ceil(Math.random() * 20);
+		let currentTurn = 0;
+		const playerCount = param("players") || 2;
+		const sandbox = param("sandbox") != true;
+		const cooperativeMode = param("coop") != true;
+
+		const arenaWidth = Math.ceil(Math.random() * 15 + playerCount);
 		const arenaHeight = arenaWidth;
 
 		const tileDensity = 16;
@@ -535,11 +596,6 @@ function lighten(hex) {
 
 		canvas.style.width = window.innerWidth * 0.80 + "px";
 		canvas.style.height = window.innerHeight * 0.80 + "px";
-
-		let currentTurn = 0;
-		const playerCount = param("players") || 2;
-		const sandbox = param("sandbox") != true;
-		const cooperativeMode = param("coop") != true;
 
 		const inputs = [
 			["KeyW", "KeyI", "ArrowUp"],
@@ -575,10 +631,19 @@ function lighten(hex) {
 
 		canvas.addEventListener("mousemove", (event) => {
 			const pos = getMousePos(event);
+
+			const tile = arenaMap.getTile(pos.x, pos.y);
+			const tileActual = event.shiftKey ? tile.oldTile : tile;
 			mapHoverLocation = {
 				coordinates: pos,
-				tile: arenaMap.getTile(pos.x, pos.y),
+				tile: tileActual,
+				frontTile: tile,
+				oldTile: tile.oldTile,
+				isOldTile: event.shiftKey,
 			};
+		});
+		canvas.addEventListener("mousedown", event => {
+			mapHoverLocation.frontTile.changeTo(generateRandomTile(mapHoverLocation.frontTile.position.x, mapHoverLocation.frontTile.position.y));
 		});
 
 		window.addEventListener("keydown", (event) => {
@@ -678,11 +743,31 @@ function lighten(hex) {
 			}
 		});
 
-		function renderTile(x = 0, y = 0, fillStyle = "white") {
-			const oldStyle = ctx.fillStyle;
-			ctx.fillStyle = fillStyle;
-
+		function renderSquare(x, y, color) {
+    	ctx.fillStyle = color;
 			ctx.fillRect(x * tileDensity, y * tileDensity, tileDensity, tileDensity);
+		}
+
+		function renderTile(tile) {
+    	const oldStyle = ctx.fillStyle;
+    	const x = tile.position.x;
+			const y = tile.position.y;
+
+			if (tile.getRendering) {
+				const rendering = tile.getRendering();
+				switch (rendering.type) {
+        	case "color": {
+        		renderSquare(x, y, rendering.color);
+					break;
+				}
+				case "image": {
+          	ctx.drawImage(rendering.image, x * tileDensity, y * tileDensity, tileDensity, tileDensity);
+				}
+				}
+			} else {
+      	// Allow defunct getColor until transition is complete
+				renderSquare(x, y, tile.getColor());
+			}
 
 			ctx.fillStyle = oldStyle;
 			return;
@@ -699,9 +784,9 @@ function lighten(hex) {
 					const curTile = arenaMap.getTile(x, y);
 					const underTile = curTile.oldTile;
 					if (underTile) {
-						renderTile(underTile.position.x, underTile.position.y, underTile.getColor());
+						renderTile(underTile);
 					}
-					renderTile(curTile.position.x, curTile.position.y, curTile.getColor());
+					renderTile(curTile);
 				}
 			}
 
@@ -752,7 +837,7 @@ function lighten(hex) {
 				hctx.textAlign = "right";
 				hctx.textBaseline = "middle";
 
-				if (mapHoverLocation.tile.toString()) {
+				if (mapHoverLocation.isOldTile && mapHoverLocation.tile && mapHoverLocation.tile.toString()) {
 					hctx.fillText(mapHoverLocation.tile.toString(), hud.width - 12, hud.height - 12);
 					hctx.fillText(`(${crds.x}, ${crds.y})`, hud.width - 12, hud.height - 24);
 				} else {
