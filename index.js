@@ -1,17 +1,14 @@
-const chroma = require("chroma-js");
+
 function lighten(hex) {
-	return chroma(hex).brighten().hex();
+	return "black";
 }
 function tint(hex, hex2, percent = 0.25) {
-	const chromy = chroma(hex);
-	const chromi = chroma(hex);
-	
-	return chroma.mix(chromy, chromi, percent).hex();
+	return "black";
 }
 const indOn = new Image();
 indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_lamp_.jpg/revision/latest?cb=20150826232718";
 
-(async function() {
+const game = async () => {
 	try {
 		/* --------------------------------------------------------------------------
 		    Helpful functions
@@ -655,9 +652,14 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 		});
 		canvas.addEventListener("mousedown", event => {
 			mapHoverLocation.frontTile.changeTo(generateRandomTile(mapHoverLocation.frontTile.position.x, mapHoverLocation.frontTile.position.y));
-		});
+		});let editorMode = false;
 
 		window.addEventListener("keydown", (event) => {
+    	if(event.code === "KeyP") {
+      editorMode = !editorMode;
+      return;
+      }
+    
 			const keyInfo = findKeyMeaning(event.code);
 			const currentPlayer = cooperativeMode ? players[keyInfo.owner] : players[currentTurn];
 			const currentID = currentPlayer.id;
@@ -759,20 +761,20 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 			ctx.fillRect(x * tileDensity, y * tileDensity, tileDensity, tileDensity);
 		}
 
-		function renderTile(tile) {
-    	const oldStyle = ctx.fillStyle;
+		function renderTile(tile, context = ctx, renderings) {
+    	const oldStyle = context.fillStyle;
     	const x = tile.position.x;
 			const y = tile.position.y;
 
-			if (tile.getRendering) {
-				const rendering = tile.getRendering();
+			if (tile.getRendering || renderings) {
+				const rendering = renderings ? renderings : tile.getRendering();
 				switch (rendering.type) {
         	case "color": {
         		renderSquare(x, y, rendering.color);
 					break;
 				}
 				case "image": {
-          	ctx.drawImage(rendering.image, x * tileDensity, y * tileDensity, tileDensity, tileDensity);
+          	context.drawImage(rendering.image, x * tileDensity, y * tileDensity, tileDensity, tileDensity);
 				}
 				}
 			} else {
@@ -780,31 +782,45 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 				renderSquare(x, y, tile.getColor());
 			}
 
-			ctx.fillStyle = oldStyle;
+			context.fillStyle = oldStyle;
 			return;
 		}
-
-		function render() {
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-			ctx.fillStyle = "black";
-			ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-			for (let y = 0; y < arenaHeight; y++) {
-				for (let x = 0; x < arenaWidth; x++) {
-					const curTile = arenaMap.getTile(x, y);
-					const underTile = curTile.oldTile;
-					if (underTile) {
-						renderTile(underTile);
-					}
-					renderTile(curTile);
-				}
-			}
-
-			// Clear the HUD.
+    const toolbarY = hud.height / 2;
+    function renderHUD() {
+    // Clear the HUD.
 			hctx.fillStyle = "#222222";
 			hctx.fillRect(0, 0, hud.width, hud.height);
+if(editorMode){
 
+
+let tools = [
+	 new Space(0,0),
+];
+
+
+hctx.font = `${hud.height * 0.08}px sans-serif`;
+	hctx.textAlign = "center";
+	hctx.textBaseline = "middle";
+	hctx.fillStyle = "white";
+	for (let index = 0; index < tools.length; index++) {
+  	const toolbarRaisedY = toolbarY;
+  
+		const item = tools[index];
+		renderTile(item, hctx);
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+}else{
 			// Get some HUD backgrounds.
 			hctx.fillStyle = cooperativeMode ? "#77ffff" : players[currentTurn].color;
 			hctx.fillRect(0, 0, hud.width / 4, hud.height);
@@ -860,6 +876,26 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 			hctx.textAlign = "left";
 			hctx.textBaseline = "middle";
 			hctx.fillText(`Has ${keys} key${keys === 1 ? "" : "s"}, facing ${directions[players[currentTurn].direction]}`, hud.width / 8 * 2 + 12, hud.height - 12);
+    }}
+
+		function render() {
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+			ctx.fillStyle = "black";
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+			for (let y = 0; y < arenaHeight; y++) {
+				for (let x = 0; x < arenaWidth; x++) {
+					const curTile = arenaMap.getTile(x, y);
+					const underTile = curTile.oldTile;
+					if (underTile) {
+						renderTile(underTile);
+					}
+					renderTile(curTile);
+				}
+			}
+
+			renderHUD();
 
 			// AGAIN!
 			window.requestAnimationFrame(render);
@@ -869,4 +905,5 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 	} catch (e) {
 		alert(e.stack);
 	}
-})();
+};
+game();
