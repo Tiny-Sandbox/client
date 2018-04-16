@@ -2,6 +2,12 @@ const chroma = require("chroma-js");
 function lighten(hex) {
 	return chroma(hex).brighten().hex();
 }
+function tint(hex, hex2, percent = 0.25) {
+	const chromy = chroma(hex);
+	const chromi = chroma(hex);
+	
+	return chroma.mix(chromy, chromi, percent).hex();
+}
 const indOn = new Image();
 indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_lamp_.jpg/revision/latest?cb=20150826232718";
 
@@ -412,7 +418,12 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 			isPowered() {
 				return this.capturedBy && neighborPowered(this);
 			}
-
+			getRendering() {
+				return {
+        				type: "color",
+					color: tint(lighten(this.capturedBy ? this.capturedBy.color : "#FFFFFF"), "yellow"),
+				};
+			}
 			toString() {
 				if (this.capturedBy) {
 					return `Player ${this.capturedBy.id + 1}'s power-connecting turf`;
