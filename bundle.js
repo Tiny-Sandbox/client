@@ -163,7 +163,7 @@ const game = async () => {
 		const tileTypes = {};
 
 		class Space {
-			constructor(x, y) {
+			constructor(x = 0, y = 0) {
 				tileTypes[this.constructor.name] = this.constructor;
 
 				this.position = {
@@ -296,8 +296,11 @@ const game = async () => {
 				super(x, y);
 			}
 
-			getColor() {
-				return "red";
+			getRendering() {
+				return {
+					type: "color",
+					color: "red",
+				};
 			}
 
 			isPowered() {
@@ -815,9 +818,6 @@ const game = async () => {
 					context.drawImage(renderings.image, x * tileDensity, y * tileDensity, tileDensity, tileDensity);
 				}
 				}
-			} else {
-				// Allow defunct getColor until transition is complete
-				renderSquare(x, y, tile.getColor());
 			}
 
 			context.fillStyle = oldStyle;
