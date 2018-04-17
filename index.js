@@ -155,9 +155,13 @@ const game = async () => {
 				this.keys = 0;
 			}
 		}
+    
+    const tileTypes = {};
 
 		class Space {
 			constructor(x, y) {
+      	tileTypes[this.constructor.name] = this.constructor;
+        
 				this.position = {
 					x: x,
 					y: y,
@@ -762,11 +766,13 @@ const game = async () => {
 			}
 		});
 
-		function renderSquare(x, y, color) {
-    	ctx.fillStyle = color;
-			ctx.fillRect(x * tileDensity, y * tileDensity, tileDensity, tileDensity);
+		function renderSquare(x, y, color, context = ctx) {
+    	context.fillStyle = color;
+			context.fillRect(x * tileDensity, y * tileDensity, tileDensity, tileDensity);
 		}
-
+function untranslate(context, x, y) {
+	context.translate(x * -1, y * -1);
+}
 		function renderTile(tile, context = ctx, renderings) {
     	const oldStyle = context.fillStyle;
     	const x = tile.position.x;
@@ -776,7 +782,7 @@ const game = async () => {
 				const rendering = renderings ? renderings : tile.getRendering();
 				switch (rendering.type) {
         	case "color": {
-        		renderSquare(x, y, rendering.color);
+        		renderSquare(x, y, rendering.color, context);
 					break;
 				}
 				case "image": {
@@ -799,22 +805,21 @@ const game = async () => {
 if(editorMode){
 
 
-let tools = [
-	 new Space(0,0),
-];
-
 
 hctx.font = `${hud.height * 0.08}px sans-serif`;
 	hctx.textAlign = "center";
 	hctx.textBaseline = "middle";
 	hctx.fillStyle = "white";
-	for (let index = 0; index < tools.length; index++) {
-  	const toolbarRaisedY = toolbarY;
   
-		const item = tools[index];
-		renderTile(item, hctx);
+  const tileList = Object.keys(tileTypes);
+  
+	for (let index = 0; index < tileList.length; index++) {
+    const thisOne = tileTypes[Object.keys(tileTypes)[index]];
+	hctx.translate(index * tileDensity, hud.height / 2);
+  const instance = new thisOne(0, 0);
+    renderTile(instance, hctx);
+    untranslate(hctx, index * tileDensity, hud.height / 2);
 	}
-
 
 
 
@@ -906,7 +911,6 @@ hctx.font = `${hud.height * 0.08}px sans-serif`;
 			// AGAIN!
 			window.requestAnimationFrame(render);
 		}
-
 		window.requestAnimationFrame(render);
 	} catch (e) {
 		alert(e.stack);
