@@ -596,14 +596,20 @@ const game = async () => {
 		const arenaHeight = arenaWidth;
 
 		const tileDensity = 16;
-		canvas.width = arenaWidth * tileDensity;
-		canvas.height = arenaHeight * tileDensity;
+    
+    function resizeCanvases() {
+      canvas.width = arenaWidth * tileDensity;
+      canvas.height = arenaHeight * tileDensity;
 
-		hud.width = window.innerWidth * 0.80;
-		hud.height = window.innerHeight * 0.15;
+      hud.width = window.innerWidth * 0.80;
+      hud.height = window.innerHeight * 0.15;
 
-		canvas.style.width = window.innerWidth * 0.80 + "px";
-		canvas.style.height = window.innerHeight * 0.80 + "px";
+      canvas.style.width = window.innerWidth * 0.80 + "px";
+      canvas.style.height = window.innerHeight * 0.80 + "px";
+    }
+    
+    resizeCanvases();
+    window.addEventListener("resize", resizeCanvases);
 
 		const inputs = [
 			["KeyW", "KeyI", "ArrowUp"],
