@@ -188,6 +188,10 @@ const game = async () => {
 				};
 			}
 
+			getPreviewRendering() {
+				return this.getRendering();
+			}
+
 			changeTo(newSpace) {
 				newSpace.position.x = this.position.x;
 				newSpace.position.y = this.position.y;
@@ -379,6 +383,13 @@ const game = async () => {
 				};
 			}
 
+			getPreviewRendering() {
+				return {
+					type: "color",
+					color: "red",
+				};
+			}
+
 			toString() {
 				return `Player ${this.occupiedBy.id + 1}'s tile`;
 			}
@@ -452,6 +463,13 @@ const game = async () => {
 				return {
 					type: "color",
 					color: this.owner.color,
+				};
+			}
+
+			getPreviewRendering() {
+				return {
+					type: "color",
+					color: "red",
 				};
 			}
 
@@ -780,22 +798,21 @@ const game = async () => {
 			context.translate(x * -1, y * -1);
 		}
 
-		function renderTile(tile, context = ctx, renderings) {
+		function renderTile(tile, context = ctx, renderings = tile.getRendering()) {
 			const oldStyle = context.fillStyle;
 			const x = tile.position.x;
 			const y = tile.position.y;
 
-			if (tile.getRendering || renderings) {
-				const rendering = renderings ? renderings : tile.getRendering();
-				switch (rendering.type) {
+			if (renderings) {
+				switch (renderings.type) {
 				case "color":
 				{
-					renderSquare(x, y, rendering.color, context);
+					renderSquare(x, y, renderings.color, context);
 					break;
 				}
 				case "image":
 				{
-					context.drawImage(rendering.image, x * tileDensity, y * tileDensity, tileDensity, tileDensity);
+					context.drawImage(renderings.image, x * tileDensity, y * tileDensity, tileDensity, tileDensity);
 				}
 				}
 			} else {
@@ -820,15 +837,14 @@ const game = async () => {
 				hctx.textBaseline = "middle";
 				hctx.fillStyle = "white";
 
-				const tileList = Object.keys(tileTypes);
+				Object.keys(tileTypes).forEach((key, index) => {
+					const thisOne = tileTypes[key];
+					const instance = new thisOne();
 
-				for (let index = 0; index < tileList.length; index++) {
-					const thisOne = tileTypes[Object.keys(tileTypes)[index]];
 					hctx.translate(index * tileDensity, hud.height / 2);
-					const instance = new thisOne(0, 0);
-					renderTile(instance, hctx);
+					renderTile(instance, hctx, instance.getPreviewRendering());
 					untranslate(hctx, index * tileDensity, hud.height / 2);
-				}
+				});
 
 
 			} else {
