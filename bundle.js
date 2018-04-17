@@ -160,12 +160,8 @@ const game = async () => {
 			}
 		}
 
-		const tileTypes = {};
-
 		class Space {
 			constructor(x = 0, y = 0) {
-				tileTypes[this.constructor.name] = this.constructor;
-
 				this.position = {
 					x: x,
 					y: y,
@@ -480,7 +476,6 @@ const game = async () => {
 				return `Player ${this.owner.id + 1}'s home tile`;
 			}
 		}
-
 		class LockedWall extends Wall {
 			constructor(x, y, keysNeeded = 1, takeAwayKeys = false) {
 				super(x, y);
@@ -823,7 +818,29 @@ const game = async () => {
 			context.fillStyle = oldStyle;
 			return;
 		}
+
 		const toolbarY = hud.height / 2;
+		const tileTypes = [
+			Space,
+			SpawnableSpace,
+			Wall,
+			ColoredWall,
+			PowerSource,
+			PowerIndicator,
+			FlashingIndicator,
+			PowerCarrier,
+			PowerCarrierWall,
+			Teleporter,
+			Turf,
+			PowerTurf,
+			HomeSpace,
+			LockedWall,
+			DirectionalWall,
+			ToggleableWall,
+			ItemBox,
+			CooperativeSwitch,
+			CooperativePuzzleWall,
+		];
 
 		function renderHUD() {
 			// Clear the HUD.
@@ -832,18 +849,21 @@ const game = async () => {
 			if (editorMode) {
 
 
-				hctx.font = `${hud.height * 0.08}px sans-serif`;
+				hctx.font = `${hud.height * 0.08}px Ubuntu`;
 				hctx.textAlign = "center";
 				hctx.textBaseline = "middle";
 				hctx.fillStyle = "white";
 
-				Object.keys(tileTypes).forEach((key, index) => {
-					const thisOne = tileTypes[key];
+				tileTypes.forEach((value, index) => {
+					const thisOne = value;
 					const instance = new thisOne();
 
-					hctx.translate(index * tileDensity, hud.height / 2);
+					hctx.translate(index * 5 * tileDensity, hud.height / 2);
+
 					renderTile(instance, hctx, instance.getPreviewRendering());
-					untranslate(hctx, index * tileDensity, hud.height / 2);
+					hctx.fillText(instance.constructor.name, tileDensity / 2, tileDensity * 2);
+
+					untranslate(hctx, index * 5 * tileDensity, hud.height / 2);
 				});
 
 
