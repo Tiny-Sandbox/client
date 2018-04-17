@@ -689,6 +689,12 @@ const game = async () => {
 			if (event.code === "KeyP") {
 				editorMode = !editorMode;
 				return;
+			} else if (event.code === "ArrowLeft" && editorMode) {
+				hudScroll += 1;
+				return;
+			} else if (event.code === "ArrowRight" && editorMode) {
+				hudScroll -= 1;
+				return;
 			}
 
 			const keyInfo = findKeyMeaning(event.code);
@@ -819,8 +825,7 @@ const game = async () => {
 			return;
 		}
 
-		const toolbarY = hud.height / 2;
-		const tileTypes = [
+		let tileTypes = [
 			Space,
 			SpawnableSpace,
 			Wall,
@@ -841,6 +846,12 @@ const game = async () => {
 			CooperativeSwitch,
 			CooperativePuzzleWall,
 		];
+		tileTypes = tileTypes.splice(0, Math.floor(Math.random() * tileTypes.length));
+
+		let hudScroll = 0;
+		hudScroll = 0;
+
+		const spacing = 100;
 
 		function renderHUD() {
 			// Clear the HUD.
@@ -849,7 +860,7 @@ const game = async () => {
 			if (editorMode) {
 
 
-				hctx.font = `${hud.height * 0.08}px Ubuntu`;
+				hctx.font = `${hud.height * 0.06}px Ubuntu`;
 				hctx.textAlign = "center";
 				hctx.textBaseline = "middle";
 				hctx.fillStyle = "white";
@@ -858,12 +869,16 @@ const game = async () => {
 					const thisOne = value;
 					const instance = new thisOne();
 
-					hctx.translate(index * 5 * tileDensity, hud.height / 2);
+					const xPos = index * spacing + hud.width / 2 - ((tileTypes.length - 1) * (spacing / 2));
+
+					hctx.translate(xPos + hudScroll * spacing, hud.height / 2);
+					hctx.scale(1.5, 1.5);
 
 					renderTile(instance, hctx, instance.getPreviewRendering());
 					hctx.fillText(instance.constructor.name, tileDensity / 2, tileDensity * 2);
 
-					untranslate(hctx, index * 5 * tileDensity, hud.height / 2);
+					hctx.scale(1 / 1.5, 1 / 1.5);
+					untranslate(hctx, xPos + hudScroll * spacing, hud.height / 2);
 				});
 
 
