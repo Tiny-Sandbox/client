@@ -1,10 +1,11 @@
-
+const chroma = require("chroma-js");
 function lighten(hex) {
-	return "black";
+	return chroma(hex).brighten().hex();
 }
 function tint(hex, hex2, percent = 0.25) {
-	return "black";
+	return chroma.mix(chroma(hex), chroma(hex2), percent);
 }
+
 const indOn = new Image();
 indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_lamp_.jpg/revision/latest?cb=20150826232718";
 
@@ -155,13 +156,13 @@ const game = async () => {
 				this.keys = 0;
 			}
 		}
-    
-    const tileTypes = {};
+
+		const tileTypes = {};
 
 		class Space {
 			constructor(x, y) {
       	tileTypes[this.constructor.name] = this.constructor;
-        
+
 				this.position = {
 					x: x,
 					y: y,
@@ -600,20 +601,20 @@ const game = async () => {
 		const arenaHeight = arenaWidth;
 
 		const tileDensity = 16;
-    
-    function resizeCanvases() {
-      canvas.width = arenaWidth * tileDensity;
-      canvas.height = arenaHeight * tileDensity;
 
-      hud.width = window.innerWidth * 0.80;
-      hud.height = window.innerHeight * 0.15;
+		function resizeCanvases() {
+			canvas.width = arenaWidth * tileDensity;
+			canvas.height = arenaHeight * tileDensity;
 
-      canvas.style.width = window.innerWidth * 0.80 + "px";
-      canvas.style.height = window.innerHeight * 0.80 + "px";
-    }
-    
-    resizeCanvases();
-    window.addEventListener("resize", resizeCanvases);
+			hud.width = window.innerWidth * 0.80;
+			hud.height = window.innerHeight * 0.15;
+
+			canvas.style.width = window.innerWidth * 0.80 + "px";
+			canvas.style.height = window.innerHeight * 0.80 + "px";
+		}
+
+		resizeCanvases();
+		window.addEventListener("resize", resizeCanvases);
 
 		const inputs = [
 			["KeyW", "KeyI", "ArrowUp"],
@@ -666,10 +667,10 @@ const game = async () => {
 
 		window.addEventListener("keydown", (event) => {
     	if(event.code === "KeyP") {
-      editorMode = !editorMode;
-      return;
-      }
-    
+				editorMode = !editorMode;
+				return;
+			}
+
 			const keyInfo = findKeyMeaning(event.code);
 			const currentPlayer = cooperativeMode ? players[keyInfo.owner] : players[currentTurn];
 			const currentID = currentPlayer.id;
@@ -770,9 +771,9 @@ const game = async () => {
     	context.fillStyle = color;
 			context.fillRect(x * tileDensity, y * tileDensity, tileDensity, tileDensity);
 		}
-function untranslate(context, x, y) {
-	context.translate(x * -1, y * -1);
-}
+		function untranslate(context, x, y) {
+			context.translate(x * -1, y * -1);
+		}
 		function renderTile(tile, context = ctx, renderings) {
     	const oldStyle = context.fillStyle;
     	const x = tile.position.x;
@@ -797,97 +798,88 @@ function untranslate(context, x, y) {
 			context.fillStyle = oldStyle;
 			return;
 		}
-    const toolbarY = hud.height / 2;
-    function renderHUD() {
-    // Clear the HUD.
+		const toolbarY = hud.height / 2;
+		function renderHUD() {
+			// Clear the HUD.
 			hctx.fillStyle = "#222222";
 			hctx.fillRect(0, 0, hud.width, hud.height);
-if(editorMode){
+			if(editorMode) {
 
 
+				hctx.font = `${hud.height * 0.08}px sans-serif`;
+				hctx.textAlign = "center";
+				hctx.textBaseline = "middle";
+				hctx.fillStyle = "white";
 
-hctx.font = `${hud.height * 0.08}px sans-serif`;
-	hctx.textAlign = "center";
-	hctx.textBaseline = "middle";
-	hctx.fillStyle = "white";
-  
-  const tileList = Object.keys(tileTypes);
-  
-	for (let index = 0; index < tileList.length; index++) {
-    const thisOne = tileTypes[Object.keys(tileTypes)[index]];
-	hctx.translate(index * tileDensity, hud.height / 2);
-  const instance = new thisOne(0, 0);
-    renderTile(instance, hctx);
-    untranslate(hctx, index * tileDensity, hud.height / 2);
-	}
+				const tileList = Object.keys(tileTypes);
 
+				for (let index = 0; index < tileList.length; index++) {
+					const thisOne = tileTypes[Object.keys(tileTypes)[index]];
+					hctx.translate(index * tileDensity, hud.height / 2);
+					const instance = new thisOne(0, 0);
+					renderTile(instance, hctx);
+					untranslate(hctx, index * tileDensity, hud.height / 2);
+				}
 
 
-
-
-
-
-
-
-
-
-}else{
+			}else{
 			// Get some HUD backgrounds.
-			hctx.fillStyle = cooperativeMode ? "#77ffff" : players[currentTurn].color;
-			hctx.fillRect(0, 0, hud.width / 4, hud.height);
+				hctx.fillStyle = cooperativeMode ? "#77ffff" : players[currentTurn].color;
+				hctx.fillRect(0, 0, hud.width / 4, hud.height);
 
-			// Cool font and color.
-			hctx.font = `${hud.width / 20}px Ubuntu`;
-			hctx.fillStyle = "white";
+				// Cool font and color.
+				hctx.font = `${hud.width / 20}px Ubuntu`;
+				hctx.fillStyle = "white";
 
-			// Center text.
-			hctx.textAlign = "center";
-			hctx.textBaseline = "middle";
-
-			// Render some HUD stats.
-			const playerText = cooperativeMode ? "CO-OP" : `PLAYER ${currentTurn + 1}`;
-			hctx.fillText(playerText, hud.width / 8, hud.height / 2);
-
-			hctx.font = "12px Ubuntu";
-			hctx.textBaseline = "top";
-
-			if (sandbox) {
-				hctx.textAlign = "right";
-				hctx.fillText("*", hud.width / 4 - 1, 0);
-			}
-
-			hctx.textAlign = "left";
-			const text = [
-				"Use WASD, arrows, and/or IJKL to navigate.",
-				cooperativeMode ? "Work together to do things." : "Each player takes turns moving.",
-				"You can only move to tiles that are white (empty spaces).",
-				"There is no objective yet.",
-				"Have fun!",
-			];
-
-			text.forEach((value, index) => {
-				hctx.fillText(value, hud.width / 8 * 2 + 12, index * 12);
-			});
-
-			if (mapHoverLocation.coordinates) {
-				const crds = mapHoverLocation.coordinates;
-
-				hctx.textAlign = "right";
+				// Center text.
+				hctx.textAlign = "center";
 				hctx.textBaseline = "middle";
 
-				if (mapHoverLocation.isOldTile && mapHoverLocation.tile && mapHoverLocation.tile.toString()) {
-					hctx.fillText(mapHoverLocation.tile.toString(), hud.width - 12, hud.height - 12);
-					hctx.fillText(`(${crds.x}, ${crds.y})`, hud.width - 12, hud.height - 24);
-				} else {
-					hctx.fillText(`(${crds.x}, ${crds.y})`, hud.width - 12, hud.height - 12);
-				}
-			}
+				// Render some HUD stats.
+				const playerText = cooperativeMode ? "CO-OP" : `PLAYER ${currentTurn + 1}`;
+				hctx.fillText(playerText, hud.width / 8, hud.height / 2);
 
-			const keys = players[currentTurn].keys;
-			hctx.textAlign = "left";
-			hctx.textBaseline = "middle";
-			hctx.fillText(`Has ${keys} key${keys === 1 ? "" : "s"}, facing ${directions[players[currentTurn].direction]}`, hud.width / 8 * 2 + 12, hud.height - 12);
-    }}
+				hctx.font = "12px Ubuntu";
+				hctx.textBaseline = "top";
+
+				if (sandbox) {
+					hctx.textAlign = "right";
+					hctx.fillText("*", hud.width / 4 - 1, 0);
+				}
+
+				hctx.textAlign = "left";
+				const text = [
+					"Use WASD, arrows, and/or IJKL to navigate.",
+					cooperativeMode ? "Work together to do things." : "Each player takes turns moving.",
+					"You can only move to tiles that are white (empty spaces).",
+					"There is no objective yet.",
+					"Have fun!",
+				];
+
+				text.forEach((value, index) => {
+					hctx.fillText(value, hud.width / 8 * 2 + 12, index * 12);
+				});
+
+				if (mapHoverLocation.coordinates) {
+					const crds = mapHoverLocation.coordinates;
+
+					hctx.textAlign = "right";
+					hctx.textBaseline = "middle";
+
+					if (mapHoverLocation.isOldTile && mapHoverLocation.tile && mapHoverLocation.tile.toString()) {
+						hctx.fillText(mapHoverLocation.tile.toString(), hud.width - 12, hud.height - 12);
+						hctx.fillText(`(${crds.x}, ${crds.y})`, hud.width - 12, hud.height - 24);
+					} else {
+						hctx.fillText(`(${crds.x}, ${crds.y})`, hud.width - 12, hud.height - 12);
+					}
+				}
+
+				const keys = players[currentTurn].keys;
+				hctx.textAlign = "left";
+				hctx.textBaseline = "middle";
+				hctx.fillText(`Has ${keys} key${keys === 1 ? "" : "s"}, facing ${directions[players[currentTurn].direction]}`, hud.width / 8 * 2 + 12, hud.height - 12);
+			}
+		}
 
 		function render() {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);

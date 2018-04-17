@@ -3,8 +3,14 @@ const chroma = require("chroma-js");
 function lighten(hex) {
 	return chroma(hex).brighten().hex();
 }
+function tint(hex, hex2, percent = 0.25) {
+	return chroma.mix(chroma(hex), chroma(hex2), percent);
+}
 
-(async function() {
+const indOn = new Image();
+indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_lamp_.jpg/revision/latest?cb=20150826232718";
+
+const game = async () => {
 	try {
 		/* --------------------------------------------------------------------------
 		    Helpful functions
@@ -31,10 +37,8 @@ function lighten(hex) {
 			}
 		}
 
-		function generateRandomTile(rand, x, y) {
-			switch (Math.round(Math.random() * rand)) {
-			default: return new PowerTurf(1, x, y);
-			}
+		function generateRandomTile(x, y) {
+			return new Space(x, y);
 		}
 
 		function getSpawnables(pid) {
@@ -85,7 +89,7 @@ function lighten(hex) {
 				for (let i = 0; i < h; i++) {
 					arr[i] = [];
 					for (let j = 0; j < w; j++) {
-						arr[i][j] = generateRandomTile(20, j, i);
+						arr[i][j] = generateRandomTile(j, i);
 					}
 				}
 				resolve(arr);
@@ -154,8 +158,12 @@ function lighten(hex) {
 			}
 		}
 
+		const tileTypes = {};
+
 		class Space {
 			constructor(x, y) {
+      	tileTypes[this.constructor.name] = this.constructor;
+
 				this.position = {
 					x: x,
 					y: y,
@@ -167,12 +175,15 @@ function lighten(hex) {
 				this.occupying = null;
 			}
 
-			getColor() {
-				return this.color;
-			}
-
 			isPowered() {
 				return false;
+			}
+
+			getRendering() {
+				return {
+					type: "color",
+					color: this.color,
+				};
 			}
 
 			changeTo(newSpace) {
@@ -234,7 +245,9 @@ function lighten(hex) {
 				}
 			}
 
-			return neighbors.some(oneTile => oneTile.isPowered());
+			return neighbors.some(oneTile => {
+				return oneTile.isPowered();
+			});
 		}
 
 		class SpawnableSpace extends Space {
@@ -259,6 +272,19 @@ function lighten(hex) {
 			}
 		}
 
+		class ColoredWall extends Wall {
+			constructor(color, x, y) {
+				super(x, y);
+				this.color = color;
+			}
+			changeColor(newColor) {
+				this.color = newColor;
+			}
+			toString() {
+				return `Wall colored ${this.color}`;
+			}
+		}
+
 		class PowerSource extends Wall {
 			constructor(x, y) {
 				super(x, y);
@@ -273,13 +299,34 @@ function lighten(hex) {
 			}
 		}
 
+		function indicatorRendering(expression) {
+			return expression ? {
+      	type: "image",
+				image: indOn,
+			} : {
+      	type: "color",
+				color: "#4b3621",
+			};
+		}
+
 		class PowerIndicator extends Wall {
 			constructor(x, y) {
 				super(x, y);
 			}
 
-			getColor() {
-				return neighborPowered(this) ? "yellow" : "mocha";
+			getRendering() {
+				return indicatorRendering(neighborPowered(this));
+			}
+		}
+
+		class FlashingIndicator extends Wall {
+			constructor(x, y, flashTiming = 1000) {
+				super(x, y);
+				this.flashTiming = flashTiming;
+			}
+
+			getRendering() {
+				return indicatorRendering(Math.round(performance.now() / this.flashTiming) % 2);
 			}
 		}
 
@@ -323,8 +370,11 @@ function lighten(hex) {
 				this.occupiedBy = player;
 			}
 
-			getColor() {
-				return this.occupiedBy.color;
+			getRendering() {
+				return {
+					type: "color",
+					color: this.occupiedBy.color,
+				};
 			}
 
 			toString() {
@@ -339,8 +389,11 @@ function lighten(hex) {
 				this.recaptures = recaptures;
 				this.captureCount = 0;
 			}
-			getColor() {
-				return this.capturedBy ? lighten(this.capturedBy.color) : "#FFFFFF";
+			getRendering() {
+				return {
+        	type: "color",
+					color: this.capturedBy ? lighten(this.capturedBy.color) : "#FFFFFF",
+				};
 			}
 			collides(d, p) {
 				if ((this.recaptures >= this.captureCount || !this.capturedBy)) {
@@ -368,6 +421,19 @@ function lighten(hex) {
 			isPowered() {
 				return this.capturedBy && neighborPowered(this);
 			}
+			getRendering() {
+				return {
+        				type: "color",
+					color: tint(lighten(this.capturedBy ? this.capturedBy.color : "#FFFFFF"), "yellow"),
+				};
+			}
+			toString() {
+				if (this.capturedBy) {
+					return `Player ${this.capturedBy.id + 1}'s power-connecting turf`;
+				} else {
+					return "Power-connecting turf";
+				}
+			}
 		}
 
 		class HomeSpace extends Wall {
@@ -380,8 +446,11 @@ function lighten(hex) {
 				return player.id !== this.owner.id;
 			}
 
-			getColor() {
-				return this.owner.color;
+			getRendering() {
+				return {
+        	type: "color",
+					color: this.owner.color,
+				};
 			}
 
 			toString() {
@@ -524,23 +593,29 @@ function lighten(hex) {
 
 		let mapHoverLocation = {};
 
-		const arenaWidth = Math.ceil(Math.random() * 20);
-		const arenaHeight = arenaWidth;
-
-		const tileDensity = 16;
-		canvas.width = arenaWidth * tileDensity;
-		canvas.height = arenaHeight * tileDensity;
-
-		hud.width = window.innerWidth * 0.80;
-		hud.height = window.innerHeight * 0.15;
-
-		canvas.style.width = window.innerWidth * 0.80 + "px";
-		canvas.style.height = window.innerHeight * 0.80 + "px";
-
 		let currentTurn = 0;
 		const playerCount = param("players") || 2;
 		const sandbox = param("sandbox") != true;
 		const cooperativeMode = param("coop") != true;
+
+		const arenaWidth = Math.ceil(Math.random() * 15 + playerCount);
+		const arenaHeight = arenaWidth;
+
+		const tileDensity = 16;
+
+		function resizeCanvases() {
+			canvas.width = arenaWidth * tileDensity;
+			canvas.height = arenaHeight * tileDensity;
+
+			hud.width = window.innerWidth * 0.80;
+			hud.height = window.innerHeight * 0.15;
+
+			canvas.style.width = window.innerWidth * 0.80 + "px";
+			canvas.style.height = window.innerHeight * 0.80 + "px";
+		}
+
+		resizeCanvases();
+		window.addEventListener("resize", resizeCanvases);
 
 		const inputs = [
 			["KeyW", "KeyI", "ArrowUp"],
@@ -576,13 +651,27 @@ function lighten(hex) {
 
 		canvas.addEventListener("mousemove", (event) => {
 			const pos = getMousePos(event);
+
+			const tile = arenaMap.getTile(pos.x, pos.y);
+			const tileActual = event.shiftKey ? tile.oldTile : tile;
 			mapHoverLocation = {
 				coordinates: pos,
-				tile: arenaMap.getTile(pos.x, pos.y),
+				tile: tileActual,
+				frontTile: tile,
+				oldTile: tile.oldTile,
+				isOldTile: event.shiftKey,
 			};
 		});
+		canvas.addEventListener("mousedown", event => {
+			mapHoverLocation.frontTile.changeTo(generateRandomTile(mapHoverLocation.frontTile.position.x, mapHoverLocation.frontTile.position.y));
+		});let editorMode = false;
 
 		window.addEventListener("keydown", (event) => {
+    	if(event.code === "KeyP") {
+				editorMode = !editorMode;
+				return;
+			}
+
 			const keyInfo = findKeyMeaning(event.code);
 			const currentPlayer = cooperativeMode ? players[keyInfo.owner] : players[currentTurn];
 			const currentID = currentPlayer.id;
@@ -679,14 +768,118 @@ function lighten(hex) {
 			}
 		});
 
-		function renderTile(x = 0, y = 0, fillStyle = "white") {
-			const oldStyle = ctx.fillStyle;
-			ctx.fillStyle = fillStyle;
+		function renderSquare(x, y, color, context = ctx) {
+    	context.fillStyle = color;
+			context.fillRect(x * tileDensity, y * tileDensity, tileDensity, tileDensity);
+		}
+		function untranslate(context, x, y) {
+			context.translate(x * -1, y * -1);
+		}
+		function renderTile(tile, context = ctx, renderings) {
+    	const oldStyle = context.fillStyle;
+    	const x = tile.position.x;
+			const y = tile.position.y;
 
-			ctx.fillRect(x * tileDensity, y * tileDensity, tileDensity, tileDensity);
+			if (tile.getRendering || renderings) {
+				const rendering = renderings ? renderings : tile.getRendering();
+				switch (rendering.type) {
+        	case "color": {
+        		renderSquare(x, y, rendering.color, context);
+					break;
+				}
+				case "image": {
+          	context.drawImage(rendering.image, x * tileDensity, y * tileDensity, tileDensity, tileDensity);
+				}
+				}
+			} else {
+      	// Allow defunct getColor until transition is complete
+				renderSquare(x, y, tile.getColor());
+			}
 
-			ctx.fillStyle = oldStyle;
+			context.fillStyle = oldStyle;
 			return;
+		}
+		const toolbarY = hud.height / 2;
+		function renderHUD() {
+			// Clear the HUD.
+			hctx.fillStyle = "#222222";
+			hctx.fillRect(0, 0, hud.width, hud.height);
+			if(editorMode) {
+
+
+				hctx.font = `${hud.height * 0.08}px sans-serif`;
+				hctx.textAlign = "center";
+				hctx.textBaseline = "middle";
+				hctx.fillStyle = "white";
+
+				const tileList = Object.keys(tileTypes);
+
+				for (let index = 0; index < tileList.length; index++) {
+					const thisOne = tileTypes[Object.keys(tileTypes)[index]];
+					hctx.translate(index * tileDensity, hud.height / 2);
+					const instance = new thisOne(0, 0);
+					renderTile(instance, hctx);
+					untranslate(hctx, index * tileDensity, hud.height / 2);
+				}
+
+
+			}else{
+			// Get some HUD backgrounds.
+				hctx.fillStyle = cooperativeMode ? "#77ffff" : players[currentTurn].color;
+				hctx.fillRect(0, 0, hud.width / 4, hud.height);
+
+				// Cool font and color.
+				hctx.font = `${hud.width / 20}px Ubuntu`;
+				hctx.fillStyle = "white";
+
+				// Center text.
+				hctx.textAlign = "center";
+				hctx.textBaseline = "middle";
+
+				// Render some HUD stats.
+				const playerText = cooperativeMode ? "CO-OP" : `PLAYER ${currentTurn + 1}`;
+				hctx.fillText(playerText, hud.width / 8, hud.height / 2);
+
+				hctx.font = "12px Ubuntu";
+				hctx.textBaseline = "top";
+
+				if (sandbox) {
+					hctx.textAlign = "right";
+					hctx.fillText("*", hud.width / 4 - 1, 0);
+				}
+
+				hctx.textAlign = "left";
+				const text = [
+					"Use WASD, arrows, and/or IJKL to navigate.",
+					cooperativeMode ? "Work together to do things." : "Each player takes turns moving.",
+					"You can only move to tiles that are white (empty spaces).",
+					"There is no objective yet.",
+					"Have fun!",
+				];
+
+				text.forEach((value, index) => {
+					hctx.fillText(value, hud.width / 8 * 2 + 12, index * 12);
+				});
+
+				if (mapHoverLocation.coordinates) {
+					const crds = mapHoverLocation.coordinates;
+
+					hctx.textAlign = "right";
+					hctx.textBaseline = "middle";
+
+					if (mapHoverLocation.isOldTile && mapHoverLocation.tile && mapHoverLocation.tile.toString()) {
+						hctx.fillText(mapHoverLocation.tile.toString(), hud.width - 12, hud.height - 12);
+						hctx.fillText(`(${crds.x}, ${crds.y})`, hud.width - 12, hud.height - 24);
+					} else {
+						hctx.fillText(`(${crds.x}, ${crds.y})`, hud.width - 12, hud.height - 12);
+					}
+				}
+
+				const keys = players[currentTurn].keys;
+				hctx.textAlign = "left";
+				hctx.textBaseline = "middle";
+				hctx.fillText(`Has ${keys} key${keys === 1 ? "" : "s"}, facing ${directions[players[currentTurn].direction]}`, hud.width / 8 * 2 + 12, hud.height - 12);
+			}
 		}
 
 		function render() {
@@ -700,81 +893,24 @@ function lighten(hex) {
 					const curTile = arenaMap.getTile(x, y);
 					const underTile = curTile.oldTile;
 					if (underTile) {
-						renderTile(underTile.position.x, underTile.position.y, underTile.getColor());
+						renderTile(underTile);
 					}
-					renderTile(curTile.position.x, curTile.position.y, curTile.getColor());
+					renderTile(curTile);
 				}
 			}
 
-			// Clear the HUD.
-			hctx.fillStyle = "#222222";
-			hctx.fillRect(0, 0, hud.width, hud.height);
-
-			// Get some HUD backgrounds.
-			hctx.fillStyle = cooperativeMode ? "#77ffff" : players[currentTurn].color;
-			hctx.fillRect(0, 0, hud.width / 4, hud.height);
-
-			// Cool font and color.
-			hctx.font = `${hud.width / 20}px Ubuntu`;
-			hctx.fillStyle = "white";
-
-			// Center text.
-			hctx.textAlign = "center";
-			hctx.textBaseline = "middle";
-
-			// Render some HUD stats.
-			const playerText = cooperativeMode ? "CO-OP" : `PLAYER ${currentTurn + 1}`;
-			hctx.fillText(playerText, hud.width / 8, hud.height / 2);
-
-			hctx.font = "12px Ubuntu";
-			hctx.textBaseline = "top";
-
-			if (sandbox) {
-				hctx.textAlign = "right";
-				hctx.fillText("*", hud.width / 4 - 1, 0);
-			}
-
-			hctx.textAlign = "left";
-			const text = [
-				"Use WASD, arrows, and/or IJKL to navigate.",
-				cooperativeMode ? "Work together to do things." : "Each player takes turns moving.",
-				"You can only move to tiles that are white (empty spaces).",
-				"There is no objective yet.",
-				"Have fun!",
-			];
-
-			text.forEach((value, index) => {
-				hctx.fillText(value, hud.width / 8 * 2 + 12, index * 12);
-			});
-
-			if (mapHoverLocation.coordinates) {
-				const crds = mapHoverLocation.coordinates;
-
-				hctx.textAlign = "right";
-				hctx.textBaseline = "middle";
-
-				if (mapHoverLocation.tile.toString()) {
-					hctx.fillText(mapHoverLocation.tile.toString(), hud.width - 12, hud.height - 12);
-					hctx.fillText(`(${crds.x}, ${crds.y})`, hud.width - 12, hud.height - 24);
-				} else {
-					hctx.fillText(`(${crds.x}, ${crds.y})`, hud.width - 12, hud.height - 12);
-				}
-			}
-
-			const keys = players[currentTurn].keys;
-			hctx.textAlign = "left";
-			hctx.textBaseline = "middle";
-			hctx.fillText(`Has ${keys} key${keys === 1 ? "" : "s"}, facing ${directions[players[currentTurn].direction]}`, hud.width / 8 * 2 + 12, hud.height - 12);
+			renderHUD();
 
 			// AGAIN!
 			window.requestAnimationFrame(render);
 		}
-
 		window.requestAnimationFrame(render);
 	} catch (e) {
 		alert(e.stack);
 	}
-})();
+};
+game();
+
 },{"chroma-js":2}],2:[function(require,module,exports){
 
 /**
