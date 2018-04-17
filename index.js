@@ -1,7 +1,9 @@
 const chroma = require("chroma-js");
+
 function lighten(hex) {
 	return chroma(hex).brighten().hex();
 }
+
 function tint(hex, hex2, percent = 0.25) {
 	return chroma.mix(chroma(hex), chroma(hex2), percent);
 }
@@ -161,7 +163,7 @@ const game = async () => {
 
 		class Space {
 			constructor(x, y) {
-      	tileTypes[this.constructor.name] = this.constructor;
+				tileTypes[this.constructor.name] = this.constructor;
 
 				this.position = {
 					x: x,
@@ -300,10 +302,10 @@ const game = async () => {
 
 		function indicatorRendering(expression) {
 			return expression ? {
-      	type: "image",
+				type: "image",
 				image: indOn,
 			} : {
-      	type: "color",
+				type: "color",
 				color: "#4b3621",
 			};
 		}
@@ -390,7 +392,7 @@ const game = async () => {
 			}
 			getRendering() {
 				return {
-        	type: "color",
+					type: "color",
 					color: this.capturedBy ? lighten(this.capturedBy.color) : "#FFFFFF",
 				};
 			}
@@ -422,7 +424,7 @@ const game = async () => {
 			}
 			getRendering() {
 				return {
-        				type: "color",
+					type: "color",
 					color: tint(lighten(this.capturedBy ? this.capturedBy.color : "#FFFFFF"), "yellow"),
 				};
 			}
@@ -447,7 +449,7 @@ const game = async () => {
 
 			getRendering() {
 				return {
-        	type: "color",
+					type: "color",
 					color: this.owner.color,
 				};
 			}
@@ -663,10 +665,11 @@ const game = async () => {
 		});
 		canvas.addEventListener("mousedown", event => {
 			mapHoverLocation.frontTile.changeTo(generateRandomTile(mapHoverLocation.frontTile.position.x, mapHoverLocation.frontTile.position.y));
-		});let editorMode = false;
+		});
+		let editorMode = false;
 
 		window.addEventListener("keydown", (event) => {
-    	if(event.code === "KeyP") {
+			if (event.code === "KeyP") {
 				editorMode = !editorMode;
 				return;
 			}
@@ -768,30 +771,34 @@ const game = async () => {
 		});
 
 		function renderSquare(x, y, color, context = ctx) {
-    	context.fillStyle = color;
+			context.fillStyle = color;
 			context.fillRect(x * tileDensity, y * tileDensity, tileDensity, tileDensity);
 		}
+
 		function untranslate(context, x, y) {
 			context.translate(x * -1, y * -1);
 		}
+
 		function renderTile(tile, context = ctx, renderings) {
-    	const oldStyle = context.fillStyle;
-    	const x = tile.position.x;
+			const oldStyle = context.fillStyle;
+			const x = tile.position.x;
 			const y = tile.position.y;
 
 			if (tile.getRendering || renderings) {
 				const rendering = renderings ? renderings : tile.getRendering();
 				switch (rendering.type) {
-        	case "color": {
-        		renderSquare(x, y, rendering.color, context);
+				case "color":
+				{
+					renderSquare(x, y, rendering.color, context);
 					break;
 				}
-				case "image": {
-          	context.drawImage(rendering.image, x * tileDensity, y * tileDensity, tileDensity, tileDensity);
+				case "image":
+				{
+					context.drawImage(rendering.image, x * tileDensity, y * tileDensity, tileDensity, tileDensity);
 				}
 				}
 			} else {
-      	// Allow defunct getColor until transition is complete
+				// Allow defunct getColor until transition is complete
 				renderSquare(x, y, tile.getColor());
 			}
 
@@ -799,11 +806,12 @@ const game = async () => {
 			return;
 		}
 		const toolbarY = hud.height / 2;
+
 		function renderHUD() {
 			// Clear the HUD.
 			hctx.fillStyle = "#222222";
 			hctx.fillRect(0, 0, hud.width, hud.height);
-			if(editorMode) {
+			if (editorMode) {
 
 
 				hctx.font = `${hud.height * 0.08}px sans-serif`;
@@ -822,8 +830,8 @@ const game = async () => {
 				}
 
 
-			}else{
-			// Get some HUD backgrounds.
+			} else {
+				// Get some HUD backgrounds.
 				hctx.fillStyle = cooperativeMode ? "#77ffff" : players[currentTurn].color;
 				hctx.fillRect(0, 0, hud.width / 4, hud.height);
 
