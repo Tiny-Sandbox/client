@@ -618,7 +618,7 @@ const game = async () => {
 		const arenaWidth = Math.ceil(Math.random() * 15 + playerCount);
 		const arenaHeight = arenaWidth;
 
-		const tileDensity = 16;
+		const tileDensity = 32;
 
 		function resizeCanvases() {
 			canvas.width = arenaWidth * tileDensity;
@@ -870,14 +870,14 @@ const game = async () => {
 
 					const xPos = index * spacing + hud.width / 2 - ((tileTypes.length - 1) * (spacing / 2));
 
-					hctx.translate(xPos + hudScroll * spacing, hud.height / 2);
+					hctx.translate(xPos + hudScroll * spacing, hud.height / 2 - tileDensity / 1.5);
 					hctx.scale(1.5, 1.5);
 
 					renderTile(instance, hctx, instance.getPreviewRendering());
-					hctx.fillText(instance.constructor.name, tileDensity / 2, tileDensity * 2);
+					hctx.fillText(instance.constructor.name, tileDensity / 2, hud.height / 2 + tileDensity);
 
 					hctx.scale(1 / 1.5, 1 / 1.5);
-					untranslate(hctx, xPos + hudScroll * spacing, hud.height / 2);
+					untranslate(hctx, xPos + hudScroll * spacing, hud.height / 2 - tileDensity / 1.5);
 				});
 
 
