@@ -568,34 +568,6 @@ const game = async () => {
 			}
 		}
 
-		class CooperativeSwitch extends Space {
-			constructor(x, y) {
-				super(x, y);
-
-				this.color = "#7777FF";
-			}
-		}
-
-		class CooperativePuzzleWall extends Wall {
-			constructor(strengthNeeded, x, y) {
-				super(x, y);
-
-				this.color = "#9999FF";
-				this.strengthNeeded = strengthNeeded;
-			}
-
-			collides() {
-				return arenaMap.getMatchingTiles((item) => {
-					if (item.constructor.name !== "Occupied") return false;
-					return item.oldTile.constructor.name === "CooperativeSwitch";
-				}).length < this.strengthNeeded;
-			}
-
-			toString() {
-				return "Cooperative wall";
-			}
-		}
-
 		/* --------------------------------------------------------------------------
 		        The logic
 		----------------------------------------------------------------------------- */
@@ -842,8 +814,6 @@ const game = async () => {
 			DirectionalWall,
 			ToggleableWall,
 			ItemBox,
-			CooperativeSwitch,
-			CooperativePuzzleWall,
 		];
 		tileTypes = tileTypes.splice(0, Math.floor(Math.random() * tileTypes.length));
 
