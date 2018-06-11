@@ -1,2 +1,3 @@
-# Battle-Arena
-A small, multiplayer game in a small arena.
+# Tiny Sandbox
+
+A small game in a small arena.
