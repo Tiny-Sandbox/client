@@ -796,7 +796,16 @@ const game = async () => {
 			return;
 		}
 
-		let tileTypes = [
+		const assign = require("lodash.assign");
+		const assets = require("./package.json")["tiny-sandbox"].assets;
+
+		const externalTiles = assets.map(name => {
+			const prettyName = name.startsWith("tsa-") ? name : "tsa-" + name;
+			const pkg = require(prettyName);
+			return pkg.tiles;
+		});
+
+		const tileTypes = assign({
 			Space,
 			SpawnableSpace,
 			Wall,
@@ -814,8 +823,7 @@ const game = async () => {
 			DirectionalWall,
 			ToggleableWall,
 			ItemBox,
-		];
-		tileTypes = tileTypes.splice(0, Math.floor(Math.random() * tileTypes.length));
+		}, ...externalTiles);
 
 		let hudScroll = 0;
 		hudScroll = 0;
