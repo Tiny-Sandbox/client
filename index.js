@@ -223,14 +223,14 @@ const game = async () => {
 
 			try {
 				switch (dirTo) {
-				case 3:
-					return arenaMap.getTile(x + 1, y);
-				case 2:
-					return arenaMap.getTile(x, y + 1);
-				case 1:
-					return arenaMap.getTile(x - 1, y);
-				default:
-					return arenaMap.getTile(x, y - 1);
+					case 3:
+						return arenaMap.getTile(x + 1, y);
+					case 2:
+						return arenaMap.getTile(x, y + 1);
+					case 1:
+						return arenaMap.getTile(x - 1, y);
+					default:
+						return arenaMap.getTile(x, y - 1);
 				}
 			} catch (error) {
 				return false;
@@ -677,79 +677,79 @@ const game = async () => {
 			let turnHasFinished = true;
 
 			switch (keyInfo.meaning) {
-			case 0:
-			{
-				const tileUp = arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y - 1);
+				case 0:
+				{
+					const tileUp = arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y - 1);
 
-				players[currentID].direction = 0;
-				if (!tileUp.collides(2, currentPlayer) || (sandbox && event.shiftKey)) {
-					curTile.changeBack();
-					tileUp.changeTo(curTile);
-					players[currentID].position.y--;
-				} else {
-					turnHasFinished = false;
+					players[currentID].direction = 0;
+					if (!tileUp.collides(2, currentPlayer) || (sandbox && event.shiftKey)) {
+						curTile.changeBack();
+						tileUp.changeTo(curTile);
+						players[currentID].position.y--;
+					} else {
+						turnHasFinished = false;
+					}
+					break;
 				}
-				break;
-			}
-			case 1:
-			{
-				const tileLeft = arenaMap.getTile(currentPlayer.position.x - 1, currentPlayer.position.y);
-				players[currentID].direction = 1;
-				if (!tileLeft.collides(3, currentPlayer) || (sandbox && event.shiftKey)) {
-					curTile.changeBack();
-					tileLeft.changeTo(curTile);
-					players[currentID].position.x--;
-				} else {
-					turnHasFinished = false;
-				}
-				break;
-			}
-			case 2:
-			{
-				const tileDown = arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y + 1);
-				players[currentID].direction = 2;
-				if (!tileDown.collides(0, currentPlayer) || (sandbox && event.shiftKey)) {
-					curTile.changeBack();
-					tileDown.changeTo(curTile);
-					players[currentID].position.y++;
-				} else {
-					turnHasFinished = false;
-				}
-				break;
-			}
-			case 3:
-			{
-				const tileRight = arenaMap.getTile(currentPlayer.position.x + 1, currentPlayer.position.y);
-				players[currentID].direction = 3;
-				if (!tileRight.collides(1, currentPlayer) || (sandbox && event.shiftKey)) {
-					curTile.changeBack();
-					tileRight.changeTo(curTile);
-					players[currentID].position.x++;
-				} else {
-					turnHasFinished = false;
-				}
-				break;
-			}
-			case 4:
-			{
-				switch (currentPlayer.direction) {
 				case 1:
-					tryTileAction(arenaMap.getTile(currentPlayer.position.x - 1, currentPlayer.position.y), 1, currentPlayer);
-					break;
-				case 2:
-					tryTileAction(arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y + 1), 2, currentPlayer);
-					break;
-				case 3:
-					tryTileAction(arenaMap.getTile(currentPlayer.position.x + 1, currentPlayer.position.y), 3, currentPlayer);
-					break;
-				default:
-					tryTileAction(arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y - 1), 0, currentPlayer);
+				{
+					const tileLeft = arenaMap.getTile(currentPlayer.position.x - 1, currentPlayer.position.y);
+					players[currentID].direction = 1;
+					if (!tileLeft.collides(3, currentPlayer) || (sandbox && event.shiftKey)) {
+						curTile.changeBack();
+						tileLeft.changeTo(curTile);
+						players[currentID].position.x--;
+					} else {
+						turnHasFinished = false;
+					}
 					break;
 				}
-				break;
-			}
-			default:
-				turnHasFinished = false;
+				case 2:
+				{
+					const tileDown = arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y + 1);
+					players[currentID].direction = 2;
+					if (!tileDown.collides(0, currentPlayer) || (sandbox && event.shiftKey)) {
+						curTile.changeBack();
+						tileDown.changeTo(curTile);
+						players[currentID].position.y++;
+					} else {
+						turnHasFinished = false;
+					}
+					break;
+				}
+				case 3:
+				{
+					const tileRight = arenaMap.getTile(currentPlayer.position.x + 1, currentPlayer.position.y);
+					players[currentID].direction = 3;
+					if (!tileRight.collides(1, currentPlayer) || (sandbox && event.shiftKey)) {
+						curTile.changeBack();
+						tileRight.changeTo(curTile);
+						players[currentID].position.x++;
+					} else {
+						turnHasFinished = false;
+					}
+					break;
+				}
+				case 4:
+				{
+					switch (currentPlayer.direction) {
+						case 1:
+							tryTileAction(arenaMap.getTile(currentPlayer.position.x - 1, currentPlayer.position.y), 1, currentPlayer);
+							break;
+						case 2:
+							tryTileAction(arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y + 1), 2, currentPlayer);
+							break;
+						case 3:
+							tryTileAction(arenaMap.getTile(currentPlayer.position.x + 1, currentPlayer.position.y), 3, currentPlayer);
+							break;
+						default:
+							tryTileAction(arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y - 1), 0, currentPlayer);
+							break;
+					}
+					break;
+				}
+				default:
+					turnHasFinished = false;
 			}
 
 			const newpl = players[currentID];
@@ -780,15 +780,15 @@ const game = async () => {
 
 			if (renderings) {
 				switch (renderings.type) {
-				case "color":
-				{
-					renderSquare(x, y, renderings.color, context);
-					break;
-				}
-				case "image":
-				{
-					context.drawImage(renderings.image, x * tileDensity, y * tileDensity, tileDensity, tileDensity);
-				}
+					case "color":
+					{
+						renderSquare(x, y, renderings.color, context);
+						break;
+					}
+					case "image":
+					{
+						context.drawImage(renderings.image, x * tileDensity, y * tileDensity, tileDensity, tileDensity);
+					}
 				}
 			}
 

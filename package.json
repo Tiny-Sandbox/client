@@ -18,7 +18,9 @@
   },
   "homepage": "https://github.com/haykam821/Battle-Arena#readme",
   "devDependencies": {
-    "browserify": "^16.1.1"
+    "browserify": "^16.1.1",
+    "eslint": "^4.19.1",
+    "eslint-config-haykam": "^1.0.1"
   },
   "dependencies": {
     "chroma-js": "^1.3.6"
