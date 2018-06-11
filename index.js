@@ -11,36 +11,8 @@ function tint(hex, hex2, percent = 0.25) {
 const indOn = new Image();
 indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_lamp_.jpg/revision/latest?cb=20150826232718";
 
-const assign = require("lodash.assign");
-const assets = require("./package.json")["tiny-sandbox"].assets;
-
-function tryRequire(name) {
-	try {
-		return require(name);
-	} catch (error) {
-		switch (error.code) {
-			case "MODULE_NOT_FOUND": {
-				alert(`Could not find ${name}. Please make sure you installed it with NPM!`);
-				break;
-			}
-			default: {
-				if (error.code) {
-					alert(`An error (${error.code}) occured while trying to load ${name}: ${error.message}`)
-				} else {
-					alert(`An error occured while trying to load ${name}: ${error.message}`);
-				}
-			}
-		}
-	}
-}
-
-const externalTiles = assets.map(name => {
-	const prettyName = name.startsWith("tsa-") ? name : "tsa-" + name;
-	const pkg = tryRequire(prettyName);
-	return pkg.tiles;
-});
-
-const tileTypes = assign({}, ...externalTiles);
+const assets = require("./assets.js");
+const tiles = assets.tiles;
 
 const game = async () => {
 	try {
@@ -70,7 +42,7 @@ const game = async () => {
 		}
 
 		function generateRandomTile(x, y) {
-			return new Space(x, y);
+			return new tiles.Space(x, y);
 		}
 
 		function getSpawnables(pid) {
@@ -100,8 +72,8 @@ const game = async () => {
 		}
 
 		function generateBase(player) {
-			arenaMap.getTile(player.position.x, player.position.y).changeTo(new HomeSpace(player));
-			arenaMap.getTile(player.position.x, player.position.y).changeTo(new Occupied(player));
+			arenaMap.getTile(player.position.x, player.position.y).changeTo(new tiles.HomeSpace(player));
+			arenaMap.getTile(player.position.x, player.position.y).changeTo(new tiles.Occupied(player));
 		}
 
 		function getMousePos(evt) {
@@ -260,10 +232,10 @@ const game = async () => {
 		const arenaMapNotClassYet = await makeArray(arenaWidth, arenaHeight);
 		const arenaMap = new TileMap(arenaMapNotClassYet);
 
-		arenaMap.getTile(0, 0).changeTo(new SpawnableSpace(null));
-		arenaMap.getTile(0, arenaHeight - 1).changeTo(new SpawnableSpace(null));
-		arenaMap.getTile(arenaWidth - 1, 0).changeTo(new SpawnableSpace(null));
-		arenaMap.getTile(arenaWidth - 1, arenaHeight - 1).changeTo(new SpawnableSpace(null));
+		arenaMap.getTile(0, 0).changeTo(new tiles.SpawnableSpace(null));
+		arenaMap.getTile(0, arenaHeight - 1).changeTo(new tiles.SpawnableSpace(null));
+		arenaMap.getTile(arenaWidth - 1, 0).changeTo(new tiles.SpawnableSpace(null));
+		arenaMap.getTile(arenaWidth - 1, arenaHeight - 1).changeTo(new tiles.SpawnableSpace(null));
 
 		const players = [];
 		for (let p = 0; p < playerCount; p++) {
