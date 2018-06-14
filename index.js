@@ -14,21 +14,54 @@ indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_
 const assets = require("./assets.js");
 const tiles = assets.tiles;
 
+const tileDensity = 32;
+
+// derived from https://stackoverflow.com/a/901144
+function param(name, url = window.location.href) {
+	name = name.replace(/[\[\]]/g, "\\$&");
+	const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
+	const results = regex.exec(url);
+	if (!results) return null;
+	if (!results[2]) return "";
+	return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+function randItem(array) {
+	return array[Math.floor(Math.random() * array.length)];
+}
+
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+const hud = document.getElementById("hud");
+const hctx = hud.getContext("2d");
+
+let mapHoverLocation = {};
+
+let currentTurn = 0;
+const playerCount = param("players") || 2;
+const sandbox = param("sandbox") != true;
+const cooperativeMode = param("coop") != true;
+
+const arenaWidth = Math.ceil(Math.random() * 15 + playerCount);
+const arenaHeight = arenaWidth;
+
+function resizeCanvases() {
+	canvas.width = arenaWidth * tileDensity;
+	canvas.height = arenaHeight * tileDensity;
+
+	hud.width = window.innerWidth * 0.80;
+	hud.height = window.innerHeight * 0.15;
+
+	canvas.style.width = window.innerWidth * 0.80 + "px";
+	canvas.style.height = window.innerHeight * 0.80 + "px";
+}
+
 const game = async () => {
 	try {
 		/* --------------------------------------------------------------------------
 		    Helpful functions
 		----------------------------------------------------------------------------- */
-
-		// derived from https://stackoverflow.com/a/901144
-		function param(name, url = window.location.href) {
-			name = name.replace(/[\[\]]/g, "\\$&");
-			const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
-			const results = regex.exec(url);
-			if (!results) return null;
-			if (!results[2]) return "";
-			return decodeURIComponent(results[2].replace(/\+/g, " "));
-		}
 
 		function findKeyMeaning(code) {
 			for (let index = 0; index < inputs.length; index++) {
@@ -65,10 +98,6 @@ const game = async () => {
 				// If no spaces, just pick one that doesn't collide up.
 				return collidableSpaces;
 			}
-		}
-
-		function randItem(array) {
-			return array[Math.floor(Math.random() * array.length)];
 		}
 
 		function generateBase(player) {
@@ -187,36 +216,7 @@ const game = async () => {
 		        The logic
 		----------------------------------------------------------------------------- */
 
-		const canvas = document.getElementById("c");
-		const ctx = canvas.getContext("2d");
-
 		ctx.fillText("Hello there! Something might've gone wrong.", canvas.width / 2, canvas.height / 2);
-
-		const hud = document.getElementById("hud");
-		const hctx = hud.getContext("2d");
-
-		let mapHoverLocation = {};
-
-		let currentTurn = 0;
-		const playerCount = param("players") || 2;
-		const sandbox = param("sandbox") != true;
-		const cooperativeMode = param("coop") != true;
-
-		const arenaWidth = Math.ceil(Math.random() * 15 + playerCount);
-		const arenaHeight = arenaWidth;
-
-		const tileDensity = 32;
-
-		function resizeCanvases() {
-			canvas.width = arenaWidth * tileDensity;
-			canvas.height = arenaHeight * tileDensity;
-
-			hud.width = window.innerWidth * 0.80;
-			hud.height = window.innerHeight * 0.15;
-
-			canvas.style.width = window.innerWidth * 0.80 + "px";
-			canvas.style.height = window.innerHeight * 0.80 + "px";
-		}
 
 		resizeCanvases();
 		window.addEventListener("resize", resizeCanvases);
