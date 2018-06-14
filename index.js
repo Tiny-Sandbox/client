@@ -135,6 +135,10 @@ const game = async () => {
 			}
 		}
 
+		/* --------------------------------------------------------------------------
+		    Tile map and player classes
+		----------------------------------------------------------------------------- */
+
 		class TileMap {
 			constructor(twodeearray) {
 				this.map = twodeearray;
@@ -190,10 +194,7 @@ const game = async () => {
 			}
 		}
 
-		/* --------------------------------------------------------------------------
-		    Tile classes
-		----------------------------------------------------------------------------- */
-
+		// Seperated from Occupied tile to allow multiple per player in the future
 		class Player {
 			constructor(id, x, y) {
 				this.id = id;
