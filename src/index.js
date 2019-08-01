@@ -14,10 +14,16 @@ function tint(hex, hex2, percent = 0.25) {
 const indOn = new Image();
 indOn.src = "https://vignette.wikia.nocookie.net/minecraft/images/d/db/Redstone_lamp_.jpg/revision/latest?cb=20150826232718";
 
-const assets = require("./assets.js");
-const tiles = assets.tiles;
+const { tiles } = require("./assets.js");
 
 const tileDensity = 32;
+
+const directions = [
+	"north",
+	"east",
+	"south",
+	"west",
+];
 
 // Derived from https://stackoverflow.com/a/901144
 function param(name, url = window.location.href) {
@@ -104,8 +110,8 @@ const game = async () => {
 		}
 
 		function generateBase(player) {
-			arenaMap.getTile(player.position.x, player.position.y).changeTo(new tiles.HomeSpace(player));
-			arenaMap.getTile(player.position.x, player.position.y).changeTo(new tiles.Occupied(player));
+			arenaMap.getTile(player.position.x, player.position.y).changeTo(new tiles.HomeSpace(player), arenaMap);
+			arenaMap.getTile(player.position.x, player.position.y).changeTo(new tiles.Occupied(player), arenaMap);
 		}
 
 		function getMousePos(event_) {
@@ -148,6 +154,7 @@ const game = async () => {
 			}
 
 			getTile(x, y) {
+				if (!Array.isArray(this.map[y]) || this.map[y][x] === undefined) return null;
 				return this.map[y][x];
 			}
 
@@ -236,10 +243,10 @@ const game = async () => {
 		const arenaMapNotClassYet = await makeArray(arenaWidth, arenaHeight);
 		const arenaMap = new TileMap(arenaMapNotClassYet);
 
-		arenaMap.getTile(0, 0).changeTo(new tiles.SpawnableSpace(null));
-		arenaMap.getTile(0, arenaHeight - 1).changeTo(new tiles.SpawnableSpace(null));
-		arenaMap.getTile(arenaWidth - 1, 0).changeTo(new tiles.SpawnableSpace(null));
-		arenaMap.getTile(arenaWidth - 1, arenaHeight - 1).changeTo(new tiles.SpawnableSpace(null));
+		arenaMap.getTile(0, 0).changeTo(new tiles.SpawnableSpace(null), arenaMap);
+		arenaMap.getTile(0, arenaHeight - 1).changeTo(new tiles.SpawnableSpace(null), arenaMap);
+		arenaMap.getTile(arenaWidth - 1, 0).changeTo(new tiles.SpawnableSpace(null), arenaMap);
+		arenaMap.getTile(arenaWidth - 1, arenaHeight - 1).changeTo(new tiles.SpawnableSpace(null), arenaMap);
 
 		const players = [];
 		for (let p = 0; p < playerCount; p++) {
@@ -254,7 +261,7 @@ const game = async () => {
 		arenaMap.getMatchingTiles(tile => {
 			return tile.constructor.name === "SpawnableSpace";
 		}).forEach(tile => {
-			tile.changeTo(generateRandomTile(tile.position.x, tile.position.y));
+			tile.changeTo(generateRandomTile(tile.position.x, tile.position.y), arenaMap);
 		});
 
 		canvas.addEventListener("mousemove", event => {
@@ -271,7 +278,7 @@ const game = async () => {
 			};
 		});
 		canvas.addEventListener("mousedown", event => {
-			mapHoverLocation.frontTile.changeTo(generateRandomTile(mapHoverLocation.frontTile.position.x, mapHoverLocation.frontTile.position.y));
+			mapHoverLocation.frontTile.changeTo(generateRandomTile(mapHoverLocation.frontTile.position.x, mapHoverLocation.frontTile.position.y), arenaMap);
 		});
 		let editorMode = false;
 
@@ -295,85 +302,69 @@ const game = async () => {
 
 			let turnHasFinished = true;
 
-			switch (keyInfo.meaning) {
-				case 0:
-				{
-					const tileUp = arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y - 1);
+			if (keyInfo.meaning === 0) {
+				const tileUp = arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y - 1);
 
-					players[currentID].direction = 0;
-					if (!tileUp.collides(2, currentPlayer) || (sandbox && event.shiftKey)) {
-						curTile.changeBack();
-						tileUp.changeTo(curTile);
-						players[currentID].position.y--;
-					} else {
-						turnHasFinished = false;
-					}
-					break;
-				}
-				case 1:
-				{
-					const tileLeft = arenaMap.getTile(currentPlayer.position.x - 1, currentPlayer.position.y);
-					players[currentID].direction = 1;
-					if (!tileLeft.collides(3, currentPlayer) || (sandbox && event.shiftKey)) {
-						curTile.changeBack();
-						tileLeft.changeTo(curTile);
-						players[currentID].position.x--;
-					} else {
-						turnHasFinished = false;
-					}
-					break;
-				}
-				case 2:
-				{
-					const tileDown = arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y + 1);
-					players[currentID].direction = 2;
-					if (!tileDown.collides(0, currentPlayer) || (sandbox && event.shiftKey)) {
-						curTile.changeBack();
-						tileDown.changeTo(curTile);
-						players[currentID].position.y++;
-					} else {
-						turnHasFinished = false;
-					}
-					break;
-				}
-				case 3:
-				{
-					const tileRight = arenaMap.getTile(currentPlayer.position.x + 1, currentPlayer.position.y);
-					players[currentID].direction = 3;
-					if (!tileRight.collides(1, currentPlayer) || (sandbox && event.shiftKey)) {
-						curTile.changeBack();
-						tileRight.changeTo(curTile);
-						players[currentID].position.x++;
-					} else {
-						turnHasFinished = false;
-					}
-					break;
-				}
-				case 4:
-				{
-					switch (currentPlayer.direction) {
-						case 1:
-							tryTileAction(arenaMap.getTile(currentPlayer.position.x - 1, currentPlayer.position.y), 1, currentPlayer);
-							break;
-						case 2:
-							tryTileAction(arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y + 1), 2, currentPlayer);
-							break;
-						case 3:
-							tryTileAction(arenaMap.getTile(currentPlayer.position.x + 1, currentPlayer.position.y), 3, currentPlayer);
-							break;
-						default:
-							tryTileAction(arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y - 1), 0, currentPlayer);
-							break;
-					}
-					break;
-				}
-				default:
+				players[currentID].direction = 0;
+				if (tileUp && !tileUp.collides(2, currentPlayer) || (sandbox && event.shiftKey)) {
+					curTile.changeBack(arenaMap);
+					tileUp.changeTo(curTile, arenaMap);
+					players[currentID].position.y--;
+				} else {
 					turnHasFinished = false;
+				}
+			} else if (keyInfo.meaning === 1) {
+				const tileLeft = arenaMap.getTile(currentPlayer.position.x - 1, currentPlayer.position.y);
+				players[currentID].direction = 1;
+				if (tileLeft && !tileLeft.collides(3, currentPlayer) || (sandbox && event.shiftKey)) {
+					curTile.changeBack(arenaMap);
+					tileLeft.changeTo(curTile, arenaMap);
+					players[currentID].position.x--;
+				} else {
+					turnHasFinished = false;
+				}
+			} else if (keyInfo.meaning === 2) {
+				const tileDown = arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y + 1);
+				players[currentID].direction = 2;
+				if (tileDown && !tileDown.collides(0, currentPlayer) || (sandbox && event.shiftKey)) {
+					curTile.changeBack(arenaMap);
+					tileDown.changeTo(curTile, arenaMap);
+					players[currentID].position.y++;
+				} else {
+					turnHasFinished = false;
+				}
+			} else if (keyInfo.meaning === 3) {
+				const tileRight = arenaMap.getTile(currentPlayer.position.x + 1, currentPlayer.position.y);
+				players[currentID].direction = 3;
+				if (tileRight && !tileRight.collides(1, currentPlayer) || (sandbox && event.shiftKey)) {
+					curTile.changeBack(arenaMap);
+					tileRight.changeTo(curTile, arenaMap);
+					players[currentID].position.x++;
+				} else {
+					turnHasFinished = false;
+				}
+			} else if (keyInfo.meaning === 4) {
+				switch (currentPlayer.direction) {
+					case 1:
+						tryTileAction(arenaMap.getTile(currentPlayer.position.x - 1, currentPlayer.position.y), 1, currentPlayer);
+						break;
+					case 2:
+						tryTileAction(arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y + 1), 2, currentPlayer);
+						break;
+					case 3:
+						tryTileAction(arenaMap.getTile(currentPlayer.position.x + 1, currentPlayer.position.y), 3, currentPlayer);
+						break;
+					default:
+						tryTileAction(arenaMap.getTile(currentPlayer.position.x, currentPlayer.position.y - 1), 0, currentPlayer);
+						break;
+				}
+			} else {
+				turnHasFinished = false;
 			}
 
 			const newpl = players[currentID];
 			const newt = arenaMap.getTile(newpl.position.x, newpl.position.y).oldTile;
-			newt.afterTurn(newpl);
+			newt.afterTurn(newpl, arenaMap);
 
 			if (turnHasFinished && !(sandbox && event.altKey)) {
 				currentTurn++;
