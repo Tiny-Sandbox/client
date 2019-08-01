@@ -16,7 +16,7 @@ const tiles = assets.tiles;
 
 const tileDensity = 32;
 
-// derived from https://stackoverflow.com/a/901144
+// Derived from https://stackoverflow.com/a/901144
 function param(name, url = window.location.href) {
 	name = name.replace(/[\[\]]/g, "\\$&");
 	const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
@@ -30,10 +30,10 @@ function randItem(array) {
 	return array[Math.floor(Math.random() * array.length)];
 }
 
-const canvas = document.getElementById("c");
-const ctx = canvas.getContext("2d");
+const canvas = document.querySelector("#c");
+const context_ = canvas.getContext("2d");
 
-const hud = document.getElementById("hud");
+const hud = document.querySelector("#hud");
 const hctx = hud.getContext("2d");
 
 let mapHoverLocation = {};
@@ -50,11 +50,11 @@ function resizeCanvases() {
 	canvas.width = arenaWidth * tileDensity;
 	canvas.height = arenaHeight * tileDensity;
 
-	hud.width = window.innerWidth * 0.80;
+	hud.width = window.innerWidth * 0.8;
 	hud.height = window.innerHeight * 0.15;
 
-	canvas.style.width = window.innerWidth * 0.80 + "px";
-	canvas.style.height = window.innerHeight * 0.80 + "px";
+	canvas.style.width = window.innerWidth * 0.8 + "px";
+	canvas.style.height = window.innerHeight * 0.8 + "px";
 }
 
 const game = async () => {
@@ -105,27 +105,27 @@ const game = async () => {
 			arenaMap.getTile(player.position.x, player.position.y).changeTo(new tiles.Occupied(player));
 		}
 
-		function getMousePos(evt) {
+		function getMousePos(event_) {
 			const rect = canvas.getBoundingClientRect();
 			const scaleX = canvas.width / rect.width;
 			const scaleY = canvas.height / rect.height;
 
 			return {
-				x: Math.floor((evt.clientX - rect.left) * scaleX / tileDensity),
-				y: Math.floor((evt.clientY - rect.top) * scaleY / tileDensity),
+				x: Math.floor((event_.clientX - rect.left) * scaleX / tileDensity),
+				y: Math.floor((event_.clientY - rect.top) * scaleY / tileDensity),
 			};
 		}
 
 		function makeArray(w, h) {
 			return new Promise(resolve => {
-				const arr = [];
+				const array = [];
 				for (let i = 0; i < h; i++) {
-					arr[i] = [];
+					array[i] = [];
 					for (let j = 0; j < w; j++) {
-						arr[i][j] = generateRandomTile(j, i);
+						array[i][j] = generateRandomTile(j, i);
 					}
 				}
-				resolve(arr);
+				resolve(array);
 			});
 		}
 
@@ -162,12 +162,12 @@ const game = async () => {
 				return matching;
 			}
 
-			neighbor(tile, dirTo) {
+			neighbor(tile, directoryTo) {
 				const x = tile.position.x;
 				const y = tile.position.y;
 
 				try {
-					switch (dirTo) {
+					switch (directoryTo) {
 						case 3:
 							return this.getTile(x + 1, y);
 						case 2:
@@ -217,7 +217,7 @@ const game = async () => {
 		        The logic
 		----------------------------------------------------------------------------- */
 
-		ctx.fillText("Hello there! Something might've gone wrong.", canvas.width / 2, canvas.height / 2);
+		context_.fillText("Hello there! Something might've gone wrong.", canvas.width / 2, canvas.height / 2);
 
 		resizeCanvases();
 		window.addEventListener("resize", resizeCanvases);
@@ -254,7 +254,7 @@ const game = async () => {
 			tile.changeTo(generateRandomTile(tile.position.x, tile.position.y));
 		});
 
-		canvas.addEventListener("mousemove", (event) => {
+		canvas.addEventListener("mousemove", event => {
 			const pos = getMousePos(event);
 
 			const tile = arenaMap.getTile(pos.x, pos.y);
@@ -272,7 +272,7 @@ const game = async () => {
 		});
 		let editorMode = false;
 
-		window.addEventListener("keydown", (event) => {
+		window.addEventListener("keydown", event => {
 			if (event.code === "KeyP") {
 				editorMode = !editorMode;
 				return;
@@ -380,7 +380,7 @@ const game = async () => {
 			}
 		});
 
-		function renderSquare(x, y, color, context = ctx) {
+		function renderSquare(x, y, color, context = context_) {
 			context.fillStyle = color;
 			context.fillRect(x * tileDensity, y * tileDensity, tileDensity, tileDensity);
 		}
@@ -389,7 +389,7 @@ const game = async () => {
 			context.translate(x * -1, y * -1);
 		}
 
-		function renderTile(tile, context = ctx, renderings = tile.getRendering()) {
+		function renderTile(tile, context = context_, renderings = tile.getRendering()) {
 			const oldStyle = context.fillStyle;
 			const x = tile.position.x;
 			const y = tile.position.y;
@@ -506,10 +506,10 @@ const game = async () => {
 		}
 
 		function render() {
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			context_.clearRect(0, 0, canvas.width, canvas.height);
 
-			ctx.fillStyle = "black";
-			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			context_.fillStyle = "black";
+			context_.fillRect(0, 0, canvas.width, canvas.height);
 
 			for (let y = 0; y < arenaHeight; y++) {
 				for (let x = 0; x < arenaWidth; x++) {
@@ -528,8 +528,8 @@ const game = async () => {
 			window.requestAnimationFrame(render);
 		}
 		window.requestAnimationFrame(render);
-	} catch (e) {
-		alert(e.stack);
+	} catch (error) {
+		alert(error.stack);
 	}
 };
 game();
