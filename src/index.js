@@ -1,3 +1,6 @@
+require("file-loader?name=[name].[ext]!html-minify-loader!./index.html");
+require("file-loader?name=[name].[ext]!html-minify-loader!./index.css");
+
 const chroma = require("chroma-js");
 
 function lighten(hex) {
